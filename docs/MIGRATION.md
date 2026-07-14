@@ -282,11 +282,11 @@ Usar MySQL Workbench o herramienta similar para importar los datos desde `data/d
 ### Archivos que necesitan cambios de rutas:
 
 1. **server.py** (líneas 84-85):
-   - `HC_DETALLE_PATH`: Cambiar a ruta real del archivo de historia clínica
-   - `PF_ORIGINAL_PATH`: Cambiar a ruta real del archivo de prefactura
+   - `HC_DETALLE_PATH`: Actualmente `BASE / "data" / "03_historia_clinica_detalle.csv"` - Cambiar a ruta real del archivo de historia clínica en producción
+   - `PF_ORIGINAL_PATH`: Actualmente `BASE / "data" / "04_prefactura.csv"` - Cambiar a ruta real del archivo de prefactura en producción
 
 2. **build_db.py** (líneas 22-23):
-   - `CSV_PATH`: Cambiar a ruta real del dataset maestro
+   - `CSV_PATH`: Actualmente usa `data/dataset_maestro.csv` - Cambiar a ruta real del dataset maestro en producción
    - `DB_PATH`: Cambiar si se usa servidor de BD remoto
 
 3. **preprocesamiento.py** (líneas 28-29):
@@ -296,11 +296,13 @@ Usar MySQL Workbench o herramienta similar para importar los datos desde `data/d
 ### Ejemplo de cambio en server.py:
 
 ```python
-# Cambiar de:
-HC_DETALLE_PATH = BASE.parent / "CSV ORIGINAL" / "03_historia_clinica_detalle.csv"
+# Cambiar de (desarrollo):
+HC_DETALLE_PATH = BASE / "data" / "03_historia_clinica_detalle.csv"
 
-# A:
+# A (producción):
 HC_DETALLE_PATH = Path("C:/ruta/produccion/historia_clinica_detalle.csv")
+# O usar variable de entorno:
+HC_DETALLE_PATH = Path(_os.environ.get("HC_DETALLE_PATH", "data/03_historia_clinica_detalle.csv"))
 ```
 
 ---
