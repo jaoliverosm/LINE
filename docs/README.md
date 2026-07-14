@@ -43,6 +43,22 @@ Capstone SIC 2025 — Valida que los servicios facturados tengan soporte clínic
 
 ---
 
+## 📊 Diagrama Visual del Flujo
+
+Para ver el diagrama visual completo del flujo de trabajo del sistema, abre el archivo **[workflow.html](workflow.html)** en tu navegador.
+
+Este diagrama interactivo muestra:
+- Flujo completo de entrada de datos
+- Verificación y cruce HC vs PF
+- Reglas de auditoría y alertas
+- Pipeline CNN detallado
+- Tabla de alertas del sistema
+- Estructura del proyecto
+
+**Ver el diagrama:** [workflow.html](workflow.html)
+
+---
+
 ## Flujo de Trabajo
 
 ### 1. Entrada

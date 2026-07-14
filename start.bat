@@ -141,12 +141,41 @@ if not exist "linea.db" (
     echo   [OK] Base de datos existente
 )
 
-:: ── 5b. Configurar API Key de NVIDIA (Nemotron) ────────────────
-if not defined NVIDIA_API_KEY (
-    set "NVIDIA_API_KEY=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"
-    echo   [OK] NVIDIA_API_KEY configurada para Nemotron
+:: ── 5b. Configurar archivo .env ─────────────────────────────────────
+echo   Verificando configuracion .env...
+if not exist ".env" (
+    if exist ".env.example" (
+        echo   Creando .env desde .env.example...
+        copy ".env.example" ".env" >nul
+        echo   [OK] .env creado desde .env.example
+        echo         Por favor revise .env y configure las variables necesarias
+    ) else (
+        echo   [WARN] No existe .env.example. Creando .env vacio...
+        echo # LINE - Auditor Medico Digital > .env
+        echo # Variables de entorno >> .env
+        echo NVIDIA_API_KEY=tu_api_key_aqui >> .env
+        echo NVIDIA_MODEL=nvidia/nemotron-3-nano-8b-v1 >> .env
+        echo   [WARN] .env creado vacio. Por favor configure NVIDIA_API_KEY
+    )
 ) else (
-    echo   [OK] NVIDIA_API_KEY ya configurada en el entorno
+    echo   [OK] .env ya existe
+)
+
+:: ── 5c. Verificar API Key de NVIDIA (Nemotron) ───────────────────
+:: Leer NVIDIA_API_KEY desde .env si no está definida en entorno
+if not defined NVIDIA_API_KEY (
+    for /f "tokens=1,2 delims==" %%a in (.env) do (
+        if "%%a"=="NVIDIA_API_KEY" set "NVIDIA_API_KEY=%%b"
+    )
+)
+if defined NVIDIA_API_KEY (
+    if "%NVIDIA_API_KEY%"=="tu_api_key_aqui" (
+        echo   [WARN] NVIDIA_API_KEY no configurada. Nemotron no estara disponible.
+    ) else (
+        echo   [OK] NVIDIA_API_KEY configurada para Nemotron
+    )
+) else (
+    echo   [WARN] NVIDIA_API_KEY no encontrada. Nemotron no estara disponible.
 )
 
 :: ── 6. Iniciar servidor ────────────────────────────────────────
