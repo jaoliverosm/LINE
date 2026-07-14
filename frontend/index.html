@@ -815,7 +815,15 @@
             </div>
 
             <div class="rounded-xl p-4" style="background: var(--color-surface-container-low); border: 1px solid var(--color-outline-variant);">
-              <h4 class="font-headline font-semibold text-sm mb-3" style="color: var(--color-primary);">Resultados por Prefactura</h4>
+              <div class="flex items-center justify-between mb-3">
+                <h4 class="font-headline font-semibold text-sm" style="color: var(--color-primary);">Resultados por Prefactura</h4>
+                <div class="flex gap-2">
+                  <button onclick="filtrarLoteResultados('todos')" class="px-3 py-1 rounded-lg text-xs font-semibold transition-all" style="background: var(--color-primary); color: var(--color-on-primary);" id="filtroTodos">Todos</button>
+                  <button onclick="filtrarLoteResultados('APROBAR')" class="px-3 py-1 rounded-lg text-xs font-semibold transition-all" style="background: var(--color-surface-container); color: var(--color-on-surface-variant);" id="filtroAprobar">Aprobados</button>
+                  <button onclick="filtrarLoteResultados('REVISAR')" class="px-3 py-1 rounded-lg text-xs font-semibold transition-all" style="background: var(--color-surface-container); color: var(--color-on-surface-variant);" id="filtroRevisar">Revisión</button>
+                  <button onclick="filtrarLoteResultados('RECHAZAR')" class="px-3 py-1 rounded-lg text-xs font-semibold transition-all" style="background: var(--color-surface-container); color: var(--color-on-surface-variant);" id="filtroRechazar">Rechazados</button>
+                </div>
+              </div>
               <div id="loteResultsTable" class="max-h-80 overflow-y-auto custom-scrollbar">
                 <table class="w-full text-xs">
                   <thead>

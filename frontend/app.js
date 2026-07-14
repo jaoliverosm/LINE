@@ -1528,6 +1528,56 @@ function mostrarResultadosLote(data) {
   showToast("Lote procesado exitosamente", "success");
 }
 
+function filtrarLoteResultados(filtro) {
+  if (!loteResultadosGuardados) {
+    return;
+  }
+
+  const resultados = loteResultadosGuardados.resultados_por_prefactura || [];
+  let resultadosFiltrados = resultados;
+
+  if (filtro !== 'todos') {
+    resultadosFiltrados = resultados.filter(r => r.recomendacion === filtro);
+  }
+
+  // Update filter button styles
+  const filtros = ['todos', 'APROBAR', 'REVISAR', 'RECHAZAR'];
+  const filtroIds = ['filtroTodos', 'filtroAprobar', 'filtroRevisar', 'filtroRechazar'];
+  
+  filtros.forEach((f, i) => {
+    const btn = document.getElementById(filtroIds[i]);
+    if ((f === 'todos' && filtro === 'todos') || f === filtro) {
+      btn.style.background = 'var(--color-primary)';
+      btn.style.color = 'var(--color-on-primary)';
+    } else {
+      btn.style.background = 'var(--color-surface-container)';
+      btn.style.color = 'var(--color-on-surface-variant)';
+    }
+  });
+
+  // Update table with filtered results
+  const tbody = document.getElementById("loteResultsBody");
+  tbody.innerHTML = resultadosFiltrados.map(r => {
+    const badgeClass = r.recomendacion === "APROBAR" ? "badge-success" : r.recomendacion === "RECHAZAR" ? "badge-error" : "badge-warning";
+    const badgeIcon = r.recomendacion === "APROBAR" ? "check_circle" : r.recomendacion === "RECHAZAR" ? "cancel" : "error_outline";
+    return `
+      <tr style="border-bottom: 1px solid var(--color-outline-variant);">
+        <td class="py-2 px-3 font-semibold" style="color: var(--color-on-surface);">${r.id_prefactura || "—"}</td>
+        <td class="py-2 px-3" style="color: var(--color-on-surface-variant);">${r.id_paciente || "—"}</td>
+        <td class="py-2 px-3 text-center" style="color: var(--color-on-surface);">${r.total_items || 0}</td>
+        <td class="py-2 px-3 text-center" style="color: var(--color-error);">${r.inconsistentes || 0}</td>
+        <td class="py-2 px-3 text-center">
+          <span class="badge ${badgeClass} text-[10px]">
+            <span class="material-symbols-outlined text-[10px]">${badgeIcon}</span>
+            ${r.recomendacion || "REVISAR"}
+          </span>
+        </td>
+        <td class="py-2 px-3 text-right font-semibold" style="color: var(--color-on-surface);">$${(r.valor_total || 0).toLocaleString()}</td>
+      </tr>
+    `;
+  }).join("");
+}
+
 function descargarResultadosLote() {
   if (!loteResultadosGuardados) {
     showToast("No hay resultados para descargar", "error");
