@@ -81,8 +81,8 @@ NVIDIA_MODEL = _os.environ.get("NVIDIA_MODEL", "nvidia/nemotron-3-nano-30b-a3b")
 # PF_ORIGINAL_PATH: Prefactura Original (referencia)
 # - Actualmente: CSV externo en carpeta "CSV ORIGINAL" (datos de prueba)
 # - Producción: Cambiar a ruta real o eliminar si no se usa
-HC_DETALLE_PATH = BASE.parent / "CSV ORIGINAL" / "03_historia_clinica_detalle.csv"
-PF_ORIGINAL_PATH = BASE.parent / "CSV ORIGINAL" / "04_prefactura.csv"
+HC_DETALLE_PATH = Path(r"C:\Users\MIGI\Desktop\CAPSTONE\CSV ORIGINAL\03_historia_clinica_detalle.csv")
+PF_ORIGINAL_PATH = Path(r"C:\Users\MIGI\Desktop\CAPSTONE\CSV ORIGINAL\04_prefactura.csv")
 
 app = FastAPI(title="LINE - Auditor Medico Digital", version="2.0")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
