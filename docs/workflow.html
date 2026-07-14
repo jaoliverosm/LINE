@@ -411,6 +411,12 @@
     </div>
     <div class="flow-arrow">+</div>
     <div class="flow-node ai">
+      <div class="icon">📊</div>
+      <div class="label">XGBoost</div>
+      <div class="desc">Gradient boosting tabular + SHAP explicabilidad</div>
+    </div>
+    <div class="flow-arrow">+</div>
+    <div class="flow-node ai">
       <div class="icon">🤖</div>
       <div class="label">NVIDIA Nemotron-3</div>
       <div class="desc">LLM externo: análisis clínico detallado con contexto</div>
@@ -436,6 +442,48 @@
       <div class="icon">❌</div>
       <div class="label">RECHAZAR</div>
       <div class="desc">&gt;30% inconsistencias</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<!-- IMPORTACIÓN MASIVA -->
+<!-- ══════════════════════════════════════════════════════════════════ -->
+
+<h2><span class="step-num">6</span> Importación Masiva (Opcional)</h2>
+
+<div class="flow">
+  <div class="flow-row">
+    <div class="flow-node primary">
+      <div class="icon">📁</div>
+      <div class="label">CSV Masivo</div>
+      <div class="desc">Archivo con 100-20,000 registros de prefacturas</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node">
+      <div class="icon">⚙️</div>
+      <div class="label">Configuración</div>
+      <div class="desc">Seleccionar modelo (CNN/XGBoost/Nemotron) y tamaño de lote</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node warning">
+      <div class="icon">🔄</div>
+      <div class="label">Procesamiento por Lotes</div>
+      <div class="desc">Divide en chunks (500-5000 registros) para evitar timeouts</div>
+    </div>
+  </div>
+  <div class="flow-arrow down">↓</div>
+  <div class="flow-row">
+    <div class="flow-node success">
+      <div class="icon">📊</div>
+      <div class="label">Resumen Global</div>
+      <div class="desc">Total registros, aprobados, rechazados, revisión, valores</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node">
+      <div class="icon">📋</div>
+      <div class="label">Tabla Detallada</div>
+      <div class="desc">Resultados por cada prefactura procesada</div>
     </div>
   </div>
 </div>
@@ -566,7 +614,8 @@
     <tr><td><span class="tag tag-blue">Backend</span></td><td><strong>FastAPI</strong> (Python)</td><td>API REST con documentación automática en /docs</td></tr>
     <tr><td><span class="tag tag-blue">Frontend</span></td><td><strong>HTML + Tailwind + JS Vanilla</strong></td><td>Interfaz responsive sin frameworks pesados</td></tr>
     <tr><td><span class="tag tag-blue">Base de Datos</span></td><td><strong>SQLite</strong></td><td>BD ligera embebida (linea.db), sin servidor externo</td></tr>
-    <tr><td><span class="tag tag-purple">IA Local</span></td><td><strong>TensorFlow / MobileNetV2</strong></td><td>CNN clasificadora binaria sobre imágenes 32×32×3</td></tr>
+    <tr><td><span class="tag tag-purple">IA Local (CNN)</span></td><td><strong>TensorFlow / MobileNetV2</strong></td><td>CNN clasificadora binaria sobre imágenes 32×32×3</td></tr>
+    <tr><td><span class="tag tag-purple">IA Local (Tabular)</span></td><td><strong>XGBoost + SHAP</strong></td><td>Gradient boosting tabular con explicabilidad</td></tr>
     <tr><td><span class="tag tag-purple">IA Externa</span></td><td><strong>NVIDIA Nemotron-3-nano</strong></td><td>LLM con razonamiento clínico vía API</td></tr>
     <tr><td><span class="tag tag-blue">Preprocesamiento</span></td><td><strong>pandas, numpy, scikit-learn</strong></td><td>Imputación, escalado, OHE, t-SNE, normalización</td></tr>
     <tr><td><span class="tag tag-blue">BDUA</span></td><td><strong>Apitude API</strong></td><td>Verificación de afiliación en ADRES (Base Única de Afiliados)</td></tr>
