@@ -397,15 +397,15 @@
     </div>
 
     <nav class="space-y-1.5 flex-1">
-      <button onclick="mostrarScreen1()" class="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg font-semibold transition-all cursor-pointer group text-xs" style="background: var(--color-primary-container); color: var(--color-primary); border-left: 3px solid var(--color-primary);">
+      <button id="navValidacion" onclick="mostrarScreen1()" class="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg font-semibold transition-all cursor-pointer group text-xs" style="background: var(--color-primary-container); color: var(--color-primary); border-left: 3px solid var(--color-primary);">
         <span class="material-symbols-outlined text-sm" style="color: var(--color-primary);">fact_check</span>
         <span class="font-label">Validación</span>
       </button>
-      <button onclick="mostrarImportacionMasiva()" class="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg transition-all cursor-pointer hover:translate-x-1 text-xs" style="color: var(--color-on-surface-variant);">
+      <button id="navImportacionMasiva" onclick="mostrarImportacionMasiva()" class="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg transition-all cursor-pointer hover:translate-x-1 text-xs" style="color: var(--color-on-surface-variant);">
         <span class="material-symbols-outlined text-sm">upload_file</span>
         <span class="font-label">Importación Masiva</span>
       </button>
-      <button onclick="mostrarSoporte()" class="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg transition-all cursor-pointer hover:translate-x-1 text-xs" style="color: var(--color-on-surface-variant);">
+      <button id="navSoporte" onclick="mostrarSoporte()" class="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg transition-all cursor-pointer hover:translate-x-1 text-xs" style="color: var(--color-on-surface-variant);">
         <span class="material-symbols-outlined text-sm">help_outline</span>
         <span class="font-label">Soporte</span>
       </button>

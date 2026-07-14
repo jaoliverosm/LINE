@@ -204,6 +204,13 @@ function showToast(message, type = 'info', duration = 4000) {
 // ── Model Toggle Logic ──────────────────────────────────────────────
 let modeloSeleccionado = "cnn_local";
 
+function syncModelSelectors() {
+  const loteModelo = document.getElementById("loteModelo");
+  if (loteModelo) {
+    loteModelo.value = modeloSeleccionado;
+  }
+}
+
 function initModelToggle() {
   const toggleCnn = document.getElementById("toggleCnn");
   const toggleXgb = document.getElementById("toggleXgb");
@@ -226,11 +233,23 @@ function initModelToggle() {
     if (desc) desc.textContent = descriptions[value] || "";
     updateModoLabel(value);
     updateFileInput(value);
+    syncModelSelectors();
   }
 
   toggleCnn.addEventListener("click", () => setModel("cnn_local"));
   toggleXgb.addEventListener("click", () => setModel("xgboost_local"));
   toggleNemotron.addEventListener("click", () => setModel("nemotron_externo"));
+
+  // Event listener for loteModelo selector to sync with sidebar
+  const loteModelo = document.getElementById("loteModelo");
+  if (loteModelo) {
+    loteModelo.addEventListener("change", (e) => {
+      const value = e.target.value;
+      if (value === "cnn_local" || value === "xgboost_local" || value === "nemotron_externo") {
+        setModel(value);
+      }
+    });
+  }
 }
 
 // ── Init ──────────────────────────────────────────────────────────
@@ -1308,7 +1327,28 @@ function showLoading(v) {
 }
 
 // ── Navigation ─────────────────────────────────────────────────────
+function setNavActive(navId) {
+  const navButtons = ['navValidacion', 'navImportacionMasiva', 'navSoporte'];
+  navButtons.forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) {
+      if (id === navId) {
+        btn.style.background = 'var(--color-primary-container)';
+        btn.style.color = 'var(--color-primary)';
+        btn.style.borderLeft = '3px solid var(--color-primary)';
+        btn.querySelector('.material-symbols-outlined').style.color = 'var(--color-primary)';
+      } else {
+        btn.style.background = 'transparent';
+        btn.style.color = 'var(--color-on-surface-variant)';
+        btn.style.borderLeft = 'none';
+        btn.querySelector('.material-symbols-outlined').style.color = '';
+      }
+    }
+  });
+}
+
 function mostrarScreen1() {
+  setNavActive('navValidacion');
   ["screen3", "screen2", "screenPf"].forEach(s => document.getElementById(s).classList.add("hidden"));
   const s1 = document.getElementById("screen1");
   s1.classList.remove("hidden");
@@ -1347,6 +1387,8 @@ let loteArchivoSeleccionado = null;
 let loteResultadosGuardados = null;
 
 function mostrarImportacionMasiva() {
+  setNavActive('navImportacionMasiva');
+  syncModelSelectors();
   ["screen1", "screen2", "screen3", "screenPf"].forEach(s => document.getElementById(s).classList.add("hidden"));
   const sLote = document.getElementById("screenImportacionMasiva");
   sLote.classList.remove("hidden");
