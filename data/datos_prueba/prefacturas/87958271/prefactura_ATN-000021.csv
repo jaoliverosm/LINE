@@ -1,0 +1,4 @@
+﻿codigo_cups_facturado,descripcion_servicio_facturado,cantidad_facturada,valor_unitario,valor_total,id_atencion,id_paciente,soporte_clinico
+902203,Laboratorio clinico - colesterol total,1,18949,18949,ATN-000021,87958271,SI
+902204,Laboratorio clinico - creatinina,1,23864,23864,ATN-000021,87958271,SI
+890205,Consulta medica general,1,79417,79417,ATN-000021,87958271,SI

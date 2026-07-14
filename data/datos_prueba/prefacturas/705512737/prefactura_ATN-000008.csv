@@ -1,0 +1,3 @@
+﻿codigo_cups_facturado,descripcion_servicio_facturado,cantidad_facturada,valor_unitario,valor_total,id_atencion,id_paciente,soporte_clinico
+903302,Imagenologia - ecografia abdominal,1,57269,57269,ATN-000008,705512737,SI
+903301,Imagenologia - radiografia torax,1,44972,44972,ATN-000008,705512737,SI

@@ -1,0 +1,3 @@
+﻿codigo_cups_facturado,descripcion_servicio_facturado,cantidad_facturada,valor_unitario,valor_total,id_atencion,id_paciente,soporte_clinico
+890206,Consulta medica especialista,1,68280,68280,ATN-000016,707454486,SI
+902203,Laboratorio clinico - colesterol total,1,21502,21502,ATN-000016,707454486,SI

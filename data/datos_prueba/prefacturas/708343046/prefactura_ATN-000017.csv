@@ -1,0 +1,4 @@
+﻿codigo_cups_facturado,descripcion_servicio_facturado,cantidad_facturada,valor_unitario,valor_total,id_atencion,id_paciente,soporte_clinico
+890205,Consulta medica general,2,53232,106464,ATN-000017,708343046,SI
+890703,Terapia ocupacional - sesion,1,46129,46129,ATN-000017,708343046,SI
+904201,Procedimiento - drenaje absceso,1,48305,48305,ATN-000017,708343046,SI

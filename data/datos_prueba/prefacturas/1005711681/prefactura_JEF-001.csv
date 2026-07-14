@@ -1,0 +1,4 @@
+codigo_cups_facturado,descripcion_servicio_facturado,cantidad_facturada,valor_unitario,valor_total,id_atencion,id_paciente,soporte_clinico
+890205,Consulta medica general,1,45000,45000,ATN-JEF-000001,1005711681,SI
+902201,Hemograma completo,1,18000,18000,ATN-JEF-000001,1005711681,SI
+903302,Ecografia abdominal,1,65000,65000,ATN-JEF-000001,1005711681,SI

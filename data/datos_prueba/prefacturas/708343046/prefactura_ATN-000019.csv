@@ -1,0 +1,3 @@
+﻿codigo_cups_facturado,descripcion_servicio_facturado,cantidad_facturada,valor_unitario,valor_total,id_atencion,id_paciente,soporte_clinico
+902201,Laboratorio clinico - hemograma,2,15785,31570,ATN-000019,708343046,SI
+890702,Terapia respiratoria - sesion,2,41702,83404,ATN-000019,708343046,SI

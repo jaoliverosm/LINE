@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+build/
+dist/
+*.egg-info/
+
+# Logs
+*.log
+start_debug.log
+
+# Environment variables
+.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test results
+test_results.json
+
+# Database (optional - uncomment if you want to exclude .db files)
+# linea.db
+
+# Models (optional - uncomment if you want to exclude large model files)
+# models/*.keras
+# models/*.pkl

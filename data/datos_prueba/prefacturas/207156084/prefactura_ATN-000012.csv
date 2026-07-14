@@ -1,0 +1,4 @@
+﻿codigo_cups_facturado,descripcion_servicio_facturado,cantidad_facturada,valor_unitario,valor_total,id_atencion,id_paciente,soporte_clinico
+904101,Procedimiento - curacion heridas,1,26368,26368,ATN-000012,207156084,SI
+903303,Imagenologia - tomografia craneal,1,161475,161475,ATN-000012,207156084,SI
+902201,Laboratorio clinico - hemograma,2,20972,41944,ATN-000012,207156084,SI

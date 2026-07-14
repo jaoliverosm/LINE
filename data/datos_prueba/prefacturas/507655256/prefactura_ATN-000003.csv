@@ -1,0 +1,5 @@
+﻿codigo_cups_facturado,descripcion_servicio_facturado,cantidad_facturada,valor_unitario,valor_total,id_atencion,id_paciente,soporte_clinico
+902201,Laboratorio clinico - hemograma,2,21544,43088,ATN-000003,507655256,SI
+904201,Procedimiento - drenaje absceso,2,49528,99056,ATN-000003,507655256,SI
+904102,Procedimiento - sutura,2,53477,106954,ATN-000003,507655256,SI
+890206,Consulta medica especialista,2,59777,119554,ATN-000003,507655256,SI

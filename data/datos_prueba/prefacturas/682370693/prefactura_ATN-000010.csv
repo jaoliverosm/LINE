@@ -1,0 +1,3 @@
+﻿codigo_cups_facturado,descripcion_servicio_facturado,cantidad_facturada,valor_unitario,valor_total,id_atencion,id_paciente,soporte_clinico
+890207,Consulta odontologica general,1,57093,57093,ATN-000010,682370693,SI
+902201,Laboratorio clinico - hemograma,2,17284,34568,ATN-000010,682370693,SI

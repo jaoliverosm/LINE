@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html class="light" lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LINE | Asistente de Prefactura · Health & Life IPS</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          primary: "#003461",
+          "primary-container": "#d3e4ff",
+          "primary-fixed": "#d3e4ff",
+          "primary-fixed-dim": "#a3c9ff",
+          "on-primary": "#ffffff",
+          "on-primary-container": "#001c38",
+          "on-primary-fixed-variant": "#004882",
+          secondary: "#006e25",
+          "secondary-container": "#80f98b",
+          "on-secondary-container": "#002106",
+          "on-secondary-fixed": "#002106",
+          tertiary: "#2c343b",
+          "tertiary-container": "#dbe4ed",
+          "on-tertiary-container": "#141d23",
+          error: "#ba1a1a",
+          "error-container": "#ffdad6",
+          "on-error": "#ffffff",
+          background: "#F4F7F9",
+          surface: "#f8f9fa",
+          "surface-bright": "#f8f9fa",
+          "surface-container-lowest": "#ffffff",
+          "surface-container-low": "#f3f4f5",
+          "surface-container": "#edeeef",
+          "surface-container-high": "#e7e8e9",
+          "surface-container-highest": "#e1e3e4",
+          "surface-dim": "#d9dadb",
+          "surface-tint": "#27609d",
+          "surface-variant": "#e1e3e4",
+          "on-surface": "#191c1d",
+          "on-surface-variant": "#424750",
+          "on-background": "#191c1d",
+          "on-primary-fixed": "#001c38",
+          "on-secondary-fixed-variant": "#00531a",
+          "secondary-fixed": "#83fc8e",
+          "secondary-fixed-dim": "#66df75",
+          "tertiary-fixed": "#dbe4ed",
+          "tertiary-fixed-dim": "#bfc8d0",
+          outline: "#727781",
+          "outline-variant": "#c2c6d1",
+          "inverse-surface": "#2e3132",
+          "inverse-on-surface": "#f0f1f2",
+          "inverse-primary": "#a3c9ff",
+        },
+        borderRadius: {
+          DEFAULT: "0.25rem",
+          lg: "0.5rem",
+          xl: "0.75rem",
+          "2xl": "1rem",
+          full: "9999px",
+        },
+        spacing: {
+          md: "16px",
+          sm: "12px",
+          xl: "32px",
+          "max-width": "1200px",
+          "margin-desktop": "24px",
+          xs: "6px",
+          "margin-mobile": "12px",
+          base: "4px",
+          gutter: "16px",
+          lg: "24px",
+        },
+        fontFamily: {
+          headline: ["Manrope", "sans-serif"],
+          body: ["Inter", "sans-serif"],
+          caption: ["Inter", "sans-serif"],
+        },
+        fontSize: {
+          "headline-xl": ["24px", { lineHeight: "32px", letterSpacing: "-0.02em", fontWeight: "700" }],
+          "headline-lg": ["20px", { lineHeight: "28px", letterSpacing: "-0.01em", fontWeight: "600" }],
+          "headline-md": ["18px", { lineHeight: "24px", fontWeight: "600" }],
+          "headline-sm": ["14px", { lineHeight: "20px", fontWeight: "600" }],
+          "body-lg": ["14px", { lineHeight: "20px", fontWeight: "400" }],
+          "body-md": ["13px", { lineHeight: "18px", fontWeight: "400" }],
+          "body-sm": ["12px", { lineHeight: "16px", fontWeight: "400" }],
+          "label-md": ["12px", { lineHeight: "15px", letterSpacing: "0.03em", fontWeight: "600" }],
+          "label-sm": ["11px", { lineHeight: "15px", letterSpacing: "0.03em", fontWeight: "600" }],
+          caption: ["11px", { lineHeight: "15px", fontWeight: "400" }],
+        },
+        boxShadow: {
+          card: "0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03)",
+          "card-hover": "0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04)",
+          "card-elevated": "0 8px 24px rgba(0,0,0,0.1), 0 4px 8px rgba(0,0,0,0.05)",
+        },
+        transitionDuration: {
+          fast: "150ms",
+          normal: "250ms",
+          slow: "350ms",
+        },
+        transitionTimingFunction: {
+          spring: "cubic-bezier(0.34, 1.56, 0.64, 1)",
+          smooth: "cubic-bezier(0.4, 0, 0.2, 1)",
+        },
+      },
+    },
+  }
+</script>
+<style>
+  :root {
+    --color-primary: #003461;
+    --color-primary-container: #d3e4ff;
+    --color-secondary: #006e25;
+    --color-secondary-container: #80f98b;
+    --color-surface: #f8f9fa;
+    --color-surface-container: #edeeef;
+    --color-surface-container-low: #f3f4f5;
+    --color-surface-container-lowest: #ffffff;
+    --color-on-surface: #191c1d;
+    --color-on-surface-variant: #424750;
+    --color-outline: #727781;
+    --color-outline-variant: #c2c6d1;
+    --color-background: #F4F7F9;
+    --color-error: #ba1a1a;
+    --color-error-container: #ffdad6;
+    --color-success: #006e25;
+    --color-success-container: #edf9f0;
+    --color-warning: #ef6c00;
+    --color-warning-container: #fef4e8;
+  }
+
+  .dark {
+    --color-primary: #a3c9ff;
+    --color-primary-container: #001c38;
+    --color-secondary: #80f98b;
+    --color-secondary-container: #002106;
+    --color-surface: #1e1e1f;
+    --color-surface-container: #2d2d30;
+    --color-surface-container-low: #252526;
+    --color-surface-container-lowest: #18181a;
+    --color-on-surface: #f0f1f2;
+    --color-on-surface-variant: #b2bbc3;
+    --color-outline: #8a8d93;
+    --color-outline-variant: #424750;
+    --color-background: #121212;
+    --color-error: #f2b8b5;
+    --color-error-container: #93000a;
+    --color-success: #80f98b;
+    --color-success-container: #002106;
+    --color-warning: #ffb74d;
+    --color-warning-container: #5c4000;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-on-surface);
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  }
+
+  /* ── Scrollbar ── */
+  .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+  .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+  .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--color-outline-variant); border-radius: 10px; }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--color-outline); }
+
+  /* ── Animations ── */
+  .fade-in { animation: fadeIn 0.4s ease-out; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px) } to { opacity: 1; transform: none } }
+
+  .slide-in { animation: slideIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); }
+  @keyframes slideIn { from { opacity: 0; transform: translateX(-8px) } to { opacity: 1; transform: none } }
+
+  .scale-in { animation: scaleIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); }
+  @keyframes scaleIn { from { opacity: 0; transform: scale(0.95) } to { opacity: 1; transform: scale(1) } }
+
+  .pulse-ring { animation: pulseRing 2s ease-out infinite; }
+  @keyframes pulseRing { 0% { transform: scale(1); opacity: 0.6 } 100% { transform: scale(1.4); opacity: 0 } }
+
+/* ── Model Toggle (Vertical Radio Group) ── */
+  .model-toggle {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    background: var(--color-surface-container);
+    border: 1px solid var(--color-outline-variant);
+    border-radius: 12px;
+    padding: 8px;
+  }
+  .dark .model-toggle {
+    background: var(--color-surface-container-high);
+    border-color: var(--color-outline);
+  }
+
+  .model-toggle-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    border: 1px solid transparent;
+    background: transparent;
+    cursor: pointer;
+    color: var(--color-on-surface);
+    transition: all 0.15s ease;
+    width: 100%;
+    text-align: left;
+  }
+  .model-toggle-btn:hover {
+    background: var(--color-surface-container-high);
+    border-color: var(--color-outline-variant);
+  }
+  .model-toggle-btn.active {
+    background: var(--color-primary-container);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    font-weight: 600;
+  }
+  .dark .model-toggle-btn.active {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: var(--color-on-primary);
+  }
+  .model-toggle-btn .icon {
+    font-size: 18px;
+    flex-shrink: 0;
+    width: 24px;
+    text-align: center;
+    color: var(--color-on-surface-variant);
+    transition: color 0.15s ease;
+  }
+  .model-toggle-btn.active .icon {
+    color: var(--color-primary);
+  }
+  .model-toggle-btn:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  .model-toggle-btn .label {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .model-toggle-btn .label .name {
+    font-weight: 600;
+    font-size: 13px;
+  }
+  .model-toggle-btn .label .desc {
+    font-size: 11px;
+    font-weight: 400;
+    opacity: 0.7;
+  }
+  .model-toggle-btn.active .label .desc {
+    opacity: 0.8;
+  }
+
+  /* ── File Upload Dropzone ── */
+  .dropzone {
+    border: 2px dashed var(--color-outline-variant);
+    background: var(--color-surface-container-low);
+    transition: all 0.2s ease;
+  }
+  .dropzone:hover,
+  .dropzone.drag-active {
+    border-color: var(--color-primary);
+    background: var(--color-primary-container);
+  }
+  .dropzone.drag-active { transform: scale(1.01); }
+
+  /* ── Status Badges ── */
+  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 9999px; font-size: 11px; font-weight: 600; }
+  .badge-success { background: var(--color-success-container); color: var(--color-success); }
+  .badge-warning { background: var(--color-warning-container); color: var(--color-warning); }
+  .badge-error { background: var(--color-error-container); color: var(--color-error); }
+  .badge-info { background: var(--color-primary-container); color: var(--color-primary); }
+
+  /* ── Result Cards ── */
+  .result-card {
+    background: var(--color-surface-container-lowest);
+    border: 1px solid var(--color-outline-variant);
+    border-radius: 12px;
+    padding: 16px;
+    transition: all 0.2s ease;
+  }
+  .result-card:hover { box-shadow: var(--card-hover); }
+  .result-card.inconsistent { border-left: 4px solid var(--color-error); }
+  .result-card.consistent { border-left: 4px solid var(--color-success); }
+  .result-card.fuga { border-left: 4px solid var(--color-warning); }
+
+  /* ── AI Indicator ── */
+  .ai-indicator { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 9999px; font-size: 11px; font-weight: 600; background: rgba(0, 75, 135, 0.08); color: var(--color-primary); border: 1px solid rgba(0, 75, 135, 0.15); }
+  .ai-indicator .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--color-success); animation: pulseDot 2s ease-in-out infinite; }
+  @keyframes pulseDot { 0%, 100% { opacity: 1 } 50% { opacity: 0.4 } }
+
+  /* ── Toast / Notification ── */
+  .toast { position: fixed; bottom: 24px; right: 24px; padding: 12px 20px; border-radius: 12px; box-shadow: var(--card-elevated); z-index: 1000; display: flex; align-items: center; gap: 10px; animation: slideInRight 0.3s ease-out; max-width: 380px; }
+  .dark .toast { box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+  @keyframes slideInRight { from { opacity: 0; transform: translateX(100%) } to { opacity: 1; transform: translateX(0) } }
+  .toast-success { background: var(--color-success-container); color: var(--color-success); border: 1px solid var(--color-success); }
+  .toast-error { background: var(--color-error-container); color: var(--color-error); border: 1px solid var(--color-error); }
+  .toast-info { background: var(--color-primary-container); color: var(--color-primary); border: 1px solid var(--color-primary); }
+
+  /* ── Skeleton Loader ── */
+  .skeleton { background: linear-gradient(90deg, var(--color-surface-container) 25%, var(--color-surface-container-high) 50%, var(--color-surface-container) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 8px; }
+  @keyframes shimmer { 0% { background-position: 200% 0 } 100% { background-position: -200% 0 } }
+
+  /* ── Focus visible ── */
+  *:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+
+  /* ── Reduced motion ── */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+  }
+</style>
+</head>
+<body class="font-body overflow-hidden h-screen flex flex-col">
+
+<!-- Top Navigation Bar -->
+<header id="mainHeader" class="h-14 w-full flex justify-between items-center px-4 border-b z-50 shrink-0" style="background: var(--color-surface); border-color: var(--color-outline-variant);">
+  <div class="flex-1"></div>
+  <div class="flex items-center gap-2 absolute left-1/2 -translate-x-1/2">
+    <span class="font-headline font-bold text-base" style="color: var(--color-primary);">Health & Life IPS</span>
+  </div>
+  <div class="hidden md:flex items-center gap-6 flex-1 justify-end">
+    <nav class="flex items-center gap-4">
+      <span class="font-caption text-xs" style="color: var(--color-on-surface-variant);">HL SITE · Unidad de cuidado crónico</span>
+    </nav>
+    <div class="flex items-center gap-3">
+      <!-- Theme Toggle -->
+      <button id="themeToggle" type="button" class="p-1.5 rounded-lg transition-colors" style="background: var(--color-surface-container); color: var(--color-on-surface);" aria-label="Alternar tema oscuro">
+        <span class="material-symbols-outlined text-lg" id="themeIcon">dark_mode</span>
+      </button>
+      <!-- Status Badge -->
+      <span class="badge badge-info text-xs" id="statusBadge">
+        <span class="material-symbols-outlined text-[10px]">sync</span> Cargando...
+      </span>
+      <div class="h-7 w-7 rounded-full overflow-hidden border flex items-center justify-center font-bold text-xs" style="border-color: var(--color-outline-variant); background: var(--color-primary-container); color: var(--color-primary);">HL</div>
+    </div>
+  </div>
+</header>
+
+<div class="flex flex-1 overflow-hidden">
+
+  <!-- Side Navigation -->
+  <aside class="h-full w-56 flex flex-col py-4 px-3 border-r shadow-sm shrink-0" style="background: var(--color-surface-container-lowest); border-color: var(--color-outline-variant);">
+    <div class="mb-6 flex items-center gap-2">
+      <div class="p-1.5 rounded-lg" style="background: var(--color-secondary-container); color: var(--color-on-secondary-container);">
+        <span class="material-symbols-outlined text-lg">health_and_safety</span>
+      </div>
+      <div>
+        <h2 class="font-headline font-extrabold" style="color: var(--color-secondary); font-size: 16px;">HL Site</h2>
+        <p class="font-caption text-[11px]" style="color: var(--color-on-surface-variant);">Asistente de Prefactura</p>
+      </div>
+    </div>
+
+<!-- Model Toggle -->
+    <div class="px-3 mb-4">
+      <p class="text-[11px] font-semibold uppercase tracking-wide mb-2 flex items-center gap-1" style="color: var(--color-on-surface-variant);">
+        <span class="material-symbols-outlined" style="font-size: 13px; color: var(--color-primary);">tune</span>
+        Modelo de IA
+      </p>
+      <div class="model-toggle" id="modelToggle">
+        <button class="model-toggle-btn active" data-value="cnn_local" id="toggleCnn" type="button">
+          <span class="material-symbols-outlined icon">neurology</span>
+          <div class="label">
+            <span class="name">CNN MobileNetV2</span>
+            <span class="desc">Clasificación binaria sobre imágenes 32×32</span>
+          </div>
+        </button>
+        <button class="model-toggle-btn" data-value="xgboost_local" id="toggleXgb" type="button">
+          <span class="material-symbols-outlined icon">bar_chart</span>
+          <div class="label">
+            <span class="name">XGBoost</span>
+            <span class="desc">Gradient boosting tabular + SHAP explicabilidad</span>
+          </div>
+        </button>
+        <button class="model-toggle-btn" data-value="nemotron_externo" id="toggleNemotron" type="button">
+          <span class="material-symbols-outlined icon">psychology</span>
+          <div class="label">
+            <span class="name">NVIDIA Nemotron-3</span>
+            <span class="desc">LLM externo con razonamiento clínico</span>
+          </div>
+        </button>
+      </div>
+      <p class="text-[10px] mt-2 leading-tight" id="modelDescription" style="color: var(--color-on-surface-variant);">MobileNetV2 entrenado localmente</p>
+    </div>
+
+    <nav class="space-y-1.5 flex-1">
+      <button onclick="mostrarScreen1()" class="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg font-semibold transition-all cursor-pointer group text-xs" style="background: var(--color-primary-container); color: var(--color-primary); border-left: 3px solid var(--color-primary);">
+        <span class="material-symbols-outlined text-sm" style="color: var(--color-primary);">fact_check</span>
+        <span class="font-label">Validación</span>
+      </button>
+      <button onclick="mostrarImportacionMasiva()" class="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg transition-all cursor-pointer hover:translate-x-1 text-xs" style="color: var(--color-on-surface-variant);">
+        <span class="material-symbols-outlined text-sm">upload_file</span>
+        <span class="font-label">Importación Masiva</span>
+      </button>
+      <button onclick="mostrarSoporte()" class="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg transition-all cursor-pointer hover:translate-x-1 text-xs" style="color: var(--color-on-surface-variant);">
+        <span class="material-symbols-outlined text-sm">help_outline</span>
+        <span class="font-label">Soporte</span>
+      </button>
+    </nav>
+    <button onclick="mostrarScreen1()" class="mt-auto w-full py-2.5 rounded-lg font-label flex items-center justify-center gap-2 shadow-sm transition-all text-xs" style="background: var(--color-primary); color: var(--color-on-primary);">
+      <span class="material-symbols-outlined text-[16px]">add</span> Nueva Verificación
+    </button>
+  </aside>
+
+  <!-- Main Content Area -->
+  <main class="flex-1 overflow-y-auto custom-scrollbar" id="mainContent" style="background: var(--color-background);">
+
+    <!-- ===== SCREEN 1: FORMULARIO ===== -->
+    <div id="screen1">
+      <div class="max-w-[1200px] mx-auto py-8 px-4 lg:px-6">
+        <!-- Header -->
+        <div class="mb-6">
+          <div class="flex items-center gap-2 font-caption mb-2 text-xs" style="color: var(--color-on-surface-variant);">
+            <span class="font-semibold" style="color: var(--color-primary);">Health & Life IPS</span>
+          </div>
+          <h1 class="font-headline-xl" style="color: var(--color-primary);">Asistente de Prefactura</h1>
+          <p class="font-body-md mt-1" style="color: var(--color-on-surface-variant);">Ingrese los datos del paciente para la verificación de prefactura y auditoría médica.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+          <!-- Left: Form Container -->
+          <div class="lg:col-span-8 rounded-xl shadow-sm p-4 lg:p-6" style="background: var(--color-surface-container-lowest); border: 1px solid var(--color-outline-variant);">
+            <div class="flex items-center justify-between mb-6">
+              <h3 class="font-headline font-medium flex items-center gap-2 text-sm" style="color: var(--color-on-surface);">
+                <span class="material-symbols-outlined" style="color: var(--color-secondary); font-size: 20px;">person_search</span>
+                Identificación del Paciente
+              </h3>
+              <div class="ai-indicator text-[10px]" id="aiIndicator">
+                <span class="dot"></span>
+                <span>IA Activa</span>
+              </div>
+            </div>
+
+            <form class="space-y-4" id="registrationForm" onsubmit="return verificarPaciente(event)">
+
+              <!-- Nombres + Apellidos -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="space-y-1">
+                  <label class="font-label block text-[11px]" style="color: var(--color-on-surface-variant);" for="nombres">Nombres</label>
+                  <div class="relative group">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 transition-colors" style="color: var(--color-outline); font-size: 18px;">person</span>
+                    <input class="w-full pl-9 pr-3 py-2.5 rounded-lg transition-all outline-none font-body text-sm" id="nombres" name="nombres" placeholder="Ej: Juan Antonio" required type="text" style="background: var(--color-surface); border: 1px solid var(--color-outline-variant); color: var(--color-on-surface);">
+                  </div>
+                </div>
+                <div class="space-y-1">
+                  <label class="font-label block text-[11px]" style="color: var(--color-on-surface-variant);" for="apellidos">Apellidos</label>
+                  <div class="relative group">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 transition-colors" style="color: var(--color-outline); font-size: 18px;">badge</span>
+                    <input class="w-full pl-9 pr-3 py-2.5 rounded-lg transition-all outline-none font-body text-sm" id="apellidos" name="apellidos" placeholder="Ej: Pérez Gómez" required type="text" style="background: var(--color-surface); border: 1px solid var(--color-outline-variant); color: var(--color-on-surface);">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Tipo Doc + Número -->
+              <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                <div class="md:col-span-2 space-y-1">
+                  <label class="font-label block text-[11px]" style="color: var(--color-on-surface-variant);" for="tipoDoc">Tipo Doc.</label>
+                  <div class="relative group">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 transition-colors" style="color: var(--color-outline); font-size: 18px;">list_alt</span>
+                    <select class="w-full pl-9 pr-3 py-2.5 rounded-lg transition-all outline-none font-body appearance-none text-sm" id="tipoDoc" required style="background: var(--color-surface); border: 1px solid var(--color-outline-variant); color: var(--color-on-surface);">
+                      <option value="CC">Cédula de Ciudadanía</option>
+                      <option value="TI">Tarjeta de Identidad</option>
+                      <option value="CE">Cédula de Extranjería</option>
+                      <option value="RC">Registro Civil</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="md:col-span-3 space-y-1">
+                  <label class="font-label block text-[11px]" style="color: var(--color-on-surface-variant);" for="numDoc">Número de identificación</label>
+                  <div class="relative group">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 transition-colors" style="color: var(--color-outline); font-size: 18px;">id_card</span>
+                    <input class="w-full pl-9 pr-3 py-2.5 rounded-lg transition-all outline-none font-body text-sm" id="numDoc" placeholder="1234567890" required type="number" style="background: var(--color-surface); border: 1px solid var(--color-outline-variant); color: var(--color-on-surface);">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Régimen + EPS -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="space-y-1">
+                  <label class="font-label block text-[11px]" style="color: var(--color-on-surface-variant);" for="tipo_afiliacion">Régimen / Tipo Afiliación</label>
+                  <div class="relative group">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 transition-colors" style="color: var(--color-outline); font-size: 18px;">clinical_notes</span>
+                    <select class="w-full pl-9 pr-3 py-2.5 rounded-lg transition-all outline-none font-body appearance-none text-sm" id="tipo_afiliacion" required style="background: var(--color-surface); border: 1px solid var(--color-outline-variant); color: var(--color-on-surface);">
+                      <option disabled selected value="">Seleccione el régimen</option>
+                      <option value="Contributivo">Contributivo</option>
+                      <option value="Subsidiado">Subsidiado</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="space-y-1">
+                  <label class="font-label block text-[11px]" style="color: var(--color-on-surface-variant);" for="eps">EPS</label>
+                  <div class="relative group">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 transition-colors" style="color: var(--color-outline); font-size: 18px;">account_balance</span>
+                    <select class="w-full pl-9 pr-3 py-2.5 rounded-lg transition-all outline-none font-body appearance-none text-sm" id="eps" required style="background: var(--color-surface); border: 1px solid var(--color-outline-variant); color: var(--color-on-surface);">
+                      <option disabled selected value="">Seleccione EPS</option>
+                      <option value="Coosalud">Coosalud</option>
+                      <option value="Nueva EPS">Nueva EPS</option>
+                      <option value="Sanitas">EPS Sanitas</option>
+                      <option value="Sura EPS">EPS Sura</option>
+                      <option value="Famisanar">Famisanar</option>
+                      <option value="Compensar">Compensar EPS</option>
+                      <option value="Mutual Ser">Mutual Ser</option>
+                      <option value="Salud Mía">Salud Mía</option>
+                      <option value="Aliansalud EPS">Aliansalud EPS</option>
+                      <option value="Salud Total EPS">Salud Total EPS</option>
+                      <option value="SOS">Servicio Occidental de Salud (SOS)</option>
+                      <option value="EPM">EPM</option>
+                      <option value="Cajacopi Atlántico">Cajacopi Atlántico</option>
+                      <option value="Asmet Salud">Asmet Salud</option>
+                      <option value="Capital Salud EPS-S">Capital Salud EPS-S</option>
+                      <option value="Savia Salud EPS">Savia Salud EPS</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Cargar Prefactura CSV -->
+              <div class="space-y-1">
+                <div class="relative group dropzone" id="fileUploadContainer">
+                  <input class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" id="fileUpload" name="fileUpload" type="file" accept=".csv,.pdf">
+                  <div class="flex flex-col items-center justify-center w-full py-6 px-4 rounded-xl transition-all cursor-pointer">
+                    <div class="w-12 h-12 rounded-full flex items-center justify-center text-primary shadow-sm group-hover:scale-110 transition-transform" style="background: var(--color-surface-container-lowest);">
+                      <span class="material-symbols-outlined text-2xl">cloud_upload</span>
+                    </div>
+                    <div class="text-center mt-2">
+                      <p class="font-body-md font-semibold text-sm" id="fileLabel" style="color: var(--color-primary);">Subir archivo CSV de prefactura</p>
+                      <p class="font-caption mt-0.5 text-[11px]" id="fileHint" style="color: var(--color-on-surface-variant);">O arrastre y suelte aquí</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Submit Button -->
+              <div class="pt-3 flex items-center justify-between gap-4 border-t" style="border-color: var(--color-outline-variant);">
+                <p class="font-caption italic max-w-[60%] text-[11px]" style="color: var(--color-on-surface-variant);">Si la verificación BDUA no está disponible, la auditoría procede con los datos locales.</p>
+                <button class="px-6 py-2.5 rounded-lg font-label flex items-center gap-2 shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm" disabled id="submitBtn" type="submit" style="background: var(--color-primary); color: var(--color-on-primary);">
+                  Verificar y Continuar
+                  <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+                </button>
+              </div>
+            </form>
+
+            <!-- ADRES Result -->
+            <div id="adresResult" class="hidden mt-6"></div>
+            <!-- Local Result -->
+            <div id="localResult" class="hidden mt-6"></div>
+            <!-- Continue Button -->
+            <div id="continuarBtn" class="hidden mt-6 text-center">
+              <button onclick="mostrarScreen2()" class="px-8 py-3 rounded-xl font-body flex items-center gap-2 mx-auto shadow-sm transition-all" style="background: var(--color-secondary); color: var(--color-on-primary);">
+                <span class="material-symbols-outlined">arrow_forward</span> Continuar a Auditoría
+              </button>
+            </div>
+          </div>
+
+          <!-- Right: Info Panel -->
+          <div class="lg:col-span-4 space-y-6">
+            <!-- AI Insights Card -->
+            <div class="rounded-2xl p-6 shadow-xl relative overflow-hidden" style="background: var(--color-primary); color: var(--color-on-primary);">
+              <div class="relative z-10">
+                <div class="flex items-center gap-2 mb-4">
+                  <span class="material-symbols-outlined text-2xl" style="color: var(--color-secondary-container);">auto_awesome</span>
+                  <h4 class="font-headline" style="font-weight: 700;">Análisis Predictivo</h4>
+                </div>
+                <p class="font-body-md mb-6" style="opacity: 0.95; font-weight: 400;">Ingrese el número de identificación para que la IA escanee antecedentes de prefactura y valide convenios vigentes.</p>
+                <div class="rounded-lg p-3 border" style="background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.25);">
+                  <div class="flex justify-between font-caption mb-1" style="color: var(--color-on-primary); font-weight: 500;">
+                    <span>Confianza de Auditoría</span>
+                    <span id="confianzaLabel" style="color: var(--color-on-primary); font-weight: 600;">98%</span>
+                  </div>
+                  <div class="h-1.5 rounded-full overflow-hidden" style="background: rgba(255,255,255,0.3);">
+                    <div class="h-full rounded-full" id="confianzaBar" style="width: 94%; background: var(--color-secondary-container);"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="absolute -right-8 -bottom-8 opacity-10">
+                <span class="material-symbols-outlined" style="font-size: 120px; font-variation-settings:'FILL' 1">psychology</span>
+              </div>
+            </div>
+
+            <!-- Mode Info -->
+            <div class="rounded-2xl p-6 border" style="background: var(--color-surface-container); border-color: var(--color-outline-variant);">
+              <h4 class="font-label uppercase tracking-wider mb-3" style="color: var(--color-on-surface-variant);">Modo de Operación</h4>
+              <p class="font-body-md" id="modoLabel" style="color: var(--color-on-surface-variant);">Cargando...</p>
+            </div>
+
+            <!-- Recent Checkups -->
+            <div class="rounded-2xl p-6 border" id="recentCheckupsCard" style="background: var(--color-surface-container); border-color: var(--color-outline-variant);">
+              <h4 class="font-label uppercase tracking-wider mb-4" style="color: var(--color-on-surface-variant);">Consultas Recientes</h4>
+              <div id="recentCheckupsList" class="space-y-3">
+                <div class="flex items-center justify-center py-4">
+                  <span class="material-symbols-outlined animate-pulse mr-2" style="color: var(--color-outline);">hourglass_empty</span>
+                  <span class="text-sm" style="color: var(--color-outline);">Cargando consultas...</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== SCREEN 2: SELECT ATTENTION ===== -->
+    <section id="screen2" class="hidden max-w-[1200px] mx-auto py-12 px-6 lg:px-10 rounded-2xl shadow-sm p-6 lg:p-8 relative overflow-hidden fade-in" style="background: var(--color-surface-container-lowest); border: 1px solid var(--color-outline-variant);">
+      <div class="absolute left-0 top-0 bottom-0 w-1.5" style="background: var(--color-primary);"></div>
+      <div class="mb-8">
+        <div class="flex items-center gap-2 font-caption mb-1" style="color: var(--color-on-surface-variant);">
+          <span class="font-semibold" style="color: var(--color-primary);">Health & Life IPS</span>
+        </div>
+        <h2 class="font-headline-lg mb-2" style="color: var(--color-primary);">Auditoría de Factura</h2>
+        <p class="font-body-md" id="pacInfo" style="color: var(--color-on-surface-variant);"></p>
+      </div>
+      <div class="mb-8">
+        <label class="font-label block mb-2" style="color: var(--color-on-surface-variant);" for="selAtencion">Seleccione Atención a Auditar</label>
+        <select id="selAtencion" class="w-full px-4 py-3 rounded-xl outline-none font-body appearance-none transition-all" style="background: var(--color-surface); border: 1px solid var(--color-outline-variant); color: var(--color-on-surface);"></select>
+      </div>
+      <button onclick="auditar()" class="w-full py-4 rounded-xl font-headline flex items-center justify-center gap-2 shadow-sm transition-all active:scale-[0.98]" style="background: var(--color-primary); color: var(--color-on-primary);">
+        <span class="material-symbols-outlined">analytics</span> Ejecutar Auditoría
+      </button>
+    </section>
+
+    <!-- ===== SCREEN PF: PREFACTURA ANALYSIS ===== -->
+    <section id="screenPf" class="hidden max-w-[1200px] mx-auto py-12 px-6 lg:px-10 rounded-2xl shadow-sm p-6 lg:p-8 relative overflow-hidden fade-in" style="background: var(--color-surface-container-lowest); border: 1px solid var(--color-outline-variant);">
+      <div class="absolute left-0 top-0 bottom-0 w-1.5" style="background: var(--color-secondary);"></div>
+      <div class="flex justify-between items-start mb-8">
+        <div>
+          <div class="flex items-center gap-2 font-caption mb-1" style="color: var(--color-on-surface-variant);">
+            <span>Prefactura</span>
+            <span class="material-symbols-outlined text-[14px]">chevron_right</span>
+            <span class="font-semibold" style="color: var(--color-secondary);">Resultado</span>
+          </div>
+          <h2 class="font-headline-lg mb-2" style="color: var(--color-secondary);">Resultado de Prefactura</h2>
+          <p class="font-body-md" id="pfResumen" style="color: var(--color-on-surface-variant);"></p>
+          <p class="font-caption mt-1 italic hidden" id="pfMotivo" style="color: var(--color-on-surface-variant);"></p>
+        </div>
+        <span id="pfBadge" class="badge whitespace-nowrap"></span>
+      </div>
+
+      <div class="mb-8" id="pfSummaryCards"></div>
+      <div id="pfCruces" class="space-y-3 mb-8"></div>
+
+      <div id="pfFugas" class="hidden mb-8">
+        <h3 class="font-headline flex items-center gap-2 mb-4" style="color: var(--color-error);">
+          <span class="material-symbols-outlined">warning</span> Posibles Fugas de Ingreso
+        </h3>
+        <div id="pfFugasList" class="space-y-2"></div>
+      </div>
+
+      <div id="pfModelos" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8"></div>
+
+      <div class="mt-8 flex flex-col md:flex-row gap-4">
+        <button onclick="mostrarScreen1()" class="px-6 py-3 rounded-xl font-body flex items-center gap-2 transition-all" style="border: 1px solid var(--color-outline-variant); color: var(--color-on-surface-variant); background: var(--color-surface-container-lowest);">
+          <span class="material-symbols-outlined">refresh</span> Nueva Auditoría
+        </button>
+        <button onclick="exportarResultadoPF()" class="px-6 py-3 rounded-xl font-body flex items-center gap-2 shadow-sm transition-all" style="background: #0277bd; color: white;">
+          <span class="material-symbols-outlined">download</span> Exportar Resultado
+        </button>
+      </div>
+    </section>
+
+    <!-- ===== SCREEN 3: AUDIT RESULT ===== -->
+    <section id="screen3" class="hidden max-w-[1200px] mx-auto py-12 px-6 lg:px-10 rounded-2xl shadow-sm p-6 lg:p-8 relative overflow-hidden fade-in" style="background: var(--color-surface-container-lowest); border: 1px solid var(--color-outline-variant);">
+      <div class="absolute left-0 top-0 bottom-0 w-1.5" style="background: var(--color-primary);"></div>
+      <div class="flex justify-between items-start mb-8">
+        <div>
+          <div class="flex items-center gap-2 font-caption mb-1" style="color: var(--color-on-surface-variant);">
+            <span>Auditoría</span>
+            <span class="material-symbols-outlined text-[14px]">chevron_right</span>
+            <span class="font-semibold" style="color: var(--color-primary);">Resultado</span>
+          </div>
+          <h2 class="font-headline-lg mb-2" style="color: var(--color-primary);">Resultado de Auditoría</h2>
+          <p class="font-body-md" id="cruceLabel" style="color: var(--color-on-surface-variant);"></p>
+        </div>
+        <span id="resultBadge" class="badge whitespace-nowrap"></span>
+      </div>
+      <div id="resultDetail" class="space-y-4"></div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8" id="comparativa"></div>
+      <div class="mt-8 flex flex-col md:flex-row gap-4">
+        <button onclick="mostrarScreen1()" class="px-6 py-3 rounded-xl font-body flex items-center gap-2 transition-all" style="border: 1px solid var(--color-outline-variant); color: var(--color-on-surface-variant); background: var(--color-surface-container-lowest);">
+          <span class="material-symbols-outlined">refresh</span> Nueva Auditoría
+        </button>
+        <button onclick="exportarCSV()" class="px-6 py-3 rounded-xl font-body flex items-center gap-2 shadow-sm transition-all" style="background: #0277bd; color: white;">
+          <span class="material-symbols-outlined">download</span> Exportar CSV
+        </button>
+      </div>
+    </section>
+
+    <!-- ===== SCREEN IMPORTACION MASIVA ===== -->
+    <section id="screenImportacionMasiva" class="hidden max-w-[1200px] mx-auto py-8 px-4 lg:px-6 fade-in">
+      <div class="mb-6">
+        <div class="flex items-center gap-2 font-caption mb-2 text-xs" style="color: var(--color-on-surface-variant);">
+          <span class="font-semibold" style="color: var(--color-primary);">Health & Life IPS</span>
+        </div>
+        <h1 class="font-headline-xl" style="color: var(--color-primary);">Importación Masiva de Prefacturas</h1>
+        <p class="font-body-md mt-1" style="color: var(--color-on-surface-variant);">Procese múltiples prefacturas en un solo archivo CSV (100-20,000 registros).</p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <!-- Left: Upload Form -->
+        <div class="lg:col-span-8 rounded-xl shadow-sm p-4 lg:p-6" style="background: var(--color-surface-container-lowest); border: 1px solid var(--color-outline-variant);">
+          <div class="flex items-center justify-between mb-6">
+            <h3 class="font-headline font-medium flex items-center gap-2 text-sm" style="color: var(--color-on-surface);">
+              <span class="material-symbols-outlined" style="color: var(--color-secondary); font-size: 20px;">upload_file</span>
+              Cargar Archivo CSV
+            </h3>
+          </div>
+
+          <div class="space-y-4">
+            <!-- Dropzone -->
+            <div class="relative group dropzone" id="loteFileUploadContainer">
+              <input class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" id="loteFileUpload" name="loteFileUpload" type="file" accept=".csv">
+              <div class="flex flex-col items-center justify-center w-full py-8 px-4 rounded-xl transition-all cursor-pointer">
+                <div class="w-16 h-16 rounded-full flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform" style="background: var(--color-surface-container-lowest);">
+                  <span class="material-symbols-outlined text-3xl" style="color: var(--color-primary);">cloud_upload</span>
+                </div>
+                <div class="text-center mt-3">
+                  <p class="font-body-md font-semibold text-sm" id="loteFileLabel" style="color: var(--color-primary);">Arrastre su archivo CSV aquí</p>
+                  <p class="font-caption mt-1 text-[11px]" id="loteFileHint" style="color: var(--color-on-surface-variant);">o haga clic para seleccionar</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Configuration -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="space-y-1">
+                <label class="font-label block text-[11px]" style="color: var(--color-on-surface-variant);" for="loteModelo">Modelo de IA</label>
+                <select id="loteModelo" class="w-full px-4 py-2.5 rounded-lg outline-none font-body appearance-none transition-all text-sm" style="background: var(--color-surface); border: 1px solid var(--color-outline-variant); color: var(--color-on-surface);">
+                  <option value="reglas">Solo Reglas (Más rápido)</option>
+                  <option value="cnn_local">CNN MobileNetV2</option>
+                  <option value="xgboost_local">XGBoost</option>
+                  <option value="nemotron_externo">NVIDIA Nemotron-3 (LLM)</option>
+                  <option value="ambos">CNN + Nemotron (Ambos)</option>
+                </select>
+              </div>
+              <div class="space-y-1">
+                <label class="font-label block text-[11px]" style="color: var(--color-on-surface-variant);" for="loteChunkSize">Tamaño de Lote</label>
+                <select id="loteChunkSize" class="w-full px-4 py-2.5 rounded-lg outline-none font-body appearance-none transition-all text-sm" style="background: var(--color-surface); border: 1px solid var(--color-outline-variant); color: var(--color-on-surface);">
+                  <option value="500">500 registros</option>
+                  <option value="1000" selected>1000 registros</option>
+                  <option value="2000">2000 registros</option>
+                  <option value="5000">5000 registros</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="pt-3 flex items-center justify-between gap-4 border-t" style="border-color: var(--color-outline-variant);">
+              <p class="font-caption italic max-w-[60%] text-[11px]" style="color: var(--color-on-surface-variant);">El procesamiento se realiza por lotes para evitar timeouts en archivos grandes.</p>
+              <button onclick="procesarLote()" class="px-6 py-2.5 rounded-lg font-label flex items-center gap-2 shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm" disabled id="loteSubmitBtn" style="background: var(--color-primary); color: var(--color-on-primary);">
+                Procesar Lote
+                <span class="material-symbols-outlined text-[18px]">play_arrow</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Progress Section -->
+          <div id="loteProgress" class="hidden mt-6">
+            <div class="rounded-xl p-4" style="background: var(--color-surface-container);">
+              <div class="flex items-center justify-between mb-3">
+                <span class="font-body-md font-semibold text-sm" style="color: var(--color-primary);">Procesando...</span>
+                <span class="font-caption text-[11px]" id="loteProgressText" style="color: var(--color-on-surface-variant);">0%</span>
+              </div>
+              <div class="w-full h-2 rounded-full overflow-hidden" style="background: var(--color-outline-variant);">
+                <div id="loteProgressBar" class="h-full rounded-full transition-all duration-300" style="width: 0%; background: var(--color-primary);"></div>
+              </div>
+              <p class="font-caption mt-2 text-[11px]" id="loteStatusText" style="color: var(--color-on-surface-variant);">Iniciando procesamiento...</p>
+            </div>
+          </div>
+
+          <!-- Results Section -->
+          <div id="loteResults" class="hidden mt-6">
+            <div class="rounded-xl p-4 mb-4" style="background: linear-gradient(135deg, var(--color-success-container) 0%, var(--color-success-container) 100%); border: 1px solid var(--color-success);">
+              <h4 class="font-headline font-semibold text-sm mb-3" style="color: var(--color-success);">Resumen Global</h4>
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                <div style="background: rgba(255,255,255,0.5); border-radius: 8px; padding: 12px;">
+                  <span style="font-size: 11px; color: var(--color-on-surface-variant); display: block;">Total Registros</span>
+                  <strong id="loteTotalRegistros" style="color: var(--color-on-surface);">0</strong>
+                </div>
+                <div style="background: rgba(255,255,255,0.5); border-radius: 8px; padding: 12px;">
+                  <span style="font-size: 11px; color: var(--color-on-surface-variant); display: block;">Aprobados</span>
+                  <strong id="loteAprobados" style="color: var(--color-success);">0</strong>
+                </div>
+                <div style="background: rgba(255,255,255,0.5); border-radius: 8px; padding: 12px;">
+                  <span style="font-size: 11px; color: var(--color-on-surface-variant); display: block;">Rechazados</span>
+                  <strong id="loteRechazados" style="color: var(--color-error);">0</strong>
+                </div>
+                <div style="background: rgba(255,255,255,0.5); border-radius: 8px; padding: 12px;">
+                  <span style="font-size: 11px; color: var(--color-on-surface-variant); display: block;">Revisión</span>
+                  <strong id="loteRevision" style="color: var(--color-warning);">0</strong>
+                </div>
+              </div>
+              <div class="grid grid-cols-2 gap-3 mt-3 text-sm">
+                <div style="background: rgba(255,255,255,0.5); border-radius: 8px; padding: 12px;">
+                  <span style="font-size: 11px; color: var(--color-on-surface-variant); display: block;">Valor Total</span>
+                  <strong id="loteValorTotal" style="color: var(--color-on-surface);">$0</strong>
+                </div>
+                <div style="background: rgba(255,255,255,0.5); border-radius: 8px; padding: 12px;">
+                  <span style="font-size: 11px; color: var(--color-on-surface-variant); display: block;">Valor Rechazado</span>
+                  <strong id="loteValorRechazado" style="color: var(--color-error);">$0</strong>
+                </div>
+              </div>
+            </div>
+
+            <div class="rounded-xl p-4" style="background: var(--color-surface-container-low); border: 1px solid var(--color-outline-variant);">
+              <h4 class="font-headline font-semibold text-sm mb-3" style="color: var(--color-primary);">Resultados por Prefactura</h4>
+              <div id="loteResultsTable" class="max-h-80 overflow-y-auto custom-scrollbar">
+                <table class="w-full text-xs">
+                  <thead>
+                    <tr style="border-bottom: 1px solid var(--color-outline-variant);">
+                      <th class="text-left py-2 px-3 font-label" style="color: var(--color-on-surface-variant);">ID Prefactura</th>
+                      <th class="text-left py-2 px-3 font-label" style="color: var(--color-on-surface-variant);">Paciente</th>
+                      <th class="text-center py-2 px-3 font-label" style="color: var(--color-on-surface-variant);">Items</th>
+                      <th class="text-center py-2 px-3 font-label" style="color: var(--color-on-surface-variant);">Inconsistentes</th>
+                      <th class="text-center py-2 px-3 font-label" style="color: var(--color-on-surface-variant);">Recomendación</th>
+                      <th class="text-right py-2 px-3 font-label" style="color: var(--color-on-surface-variant);">Valor</th>
+                    </tr>
+                  </thead>
+                  <tbody id="loteResultsBody">
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="mt-4 flex flex-col md:flex-row gap-3">
+              <button onclick="descargarResultadosLote()" class="px-6 py-2.5 rounded-lg font-label flex items-center gap-2 shadow-sm transition-all text-sm" style="background: #0277bd; color: white;">
+                <span class="material-symbols-outlined text-[18px]">download</span>
+                Descargar CSV
+              </button>
+              <button onclick="mostrarScreen1()" class="px-6 py-2.5 rounded-lg font-label flex items-center gap-2 transition-all text-sm" style="border: 1px solid var(--color-outline-variant); color: var(--color-on-surface-variant); background: var(--color-surface-container-lowest);">
+                <span class="material-symbols-outlined text-[18px]">refresh</span>
+                Nuevo Lote
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Info Panel -->
+        <div class="lg:col-span-4 space-y-6">
+          <div class="rounded-2xl p-6 border" style="background: var(--color-surface-container); border-color: var(--color-outline-variant);">
+            <h4 class="font-label uppercase tracking-wider mb-3" style="color: var(--color-on-surface-variant);">Formato del CSV</h4>
+            <p class="font-body-md text-sm mb-3" style="color: var(--color-on-surface-variant);">El archivo CSV debe contener las siguientes columnas:</p>
+            <ul class="space-y-2 text-xs" style="color: var(--color-on-surface-variant);">
+              <li class="flex items-start gap-2">
+                <span class="material-symbols-outlined text-[14px]" style="color: var(--color-primary);">check_circle</span>
+                <span><strong>codigo_cups_facturado</strong> (obligatorio)</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="material-symbols-outlined text-[14px]" style="color: var(--color-primary);">check_circle</span>
+                <span><strong>descripcion_servicio_facturado</strong></span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="material-symbols-outlined text-[14px]" style="color: var(--color-primary);">check_circle</span>
+                <span><strong>cantidad_facturada</strong></span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="material-symbols-outlined text-[14px]" style="color: var(--color-primary);">check_circle</span>
+                <span><strong>valor_total</strong></span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="material-symbols-outlined text-[14px]" style="color: var(--color-secondary);">info</span>
+                <span><strong>id_prefactura</strong> (opcional, para agrupar)</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="material-symbols-outlined text-[14px]" style="color: var(--color-secondary);">info</span>
+                <span><strong>id_atencion</strong> (opcional)</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="material-symbols-outlined text-[14px]" style="color: var(--color-secondary);">info</span>
+                <span><strong>numero_documento</strong> (opcional)</span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="rounded-2xl p-6 border" style="background: var(--color-surface-container); border-color: var(--color-outline-variant);">
+            <h4 class="font-label uppercase tracking-wider mb-3" style="color: var(--color-on-surface-variant);">Rendimiento</h4>
+            <p class="font-body-md text-sm" style="color: var(--color-on-surface-variant);">El procesamiento por lotes permite:</p>
+            <ul class="space-y-2 mt-3 text-xs" style="color: var(--color-on-surface-variant);">
+              <li class="flex items-start gap-2">
+                <span class="material-symbols-outlined text-[14px]" style="color: var(--color-success);">speed</span>
+                <span>Evitar timeouts en archivos grandes</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="material-symbols-outlined text-[14px]" style="color: var(--color-success);">memory</span>
+                <span>Optimizar uso de memoria</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="material-symbols-outlined text-[14px]" style="color: var(--color-success);">analytics</span>
+                <span>Seguimiento de progreso en tiempo real</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SOPORTE OVERLAY ===== -->
+    <div id="soporteOverlay" class="hidden fixed inset-0 z-[90] flex items-center justify-center p-4" style="background: rgba(0,0,0,0.4);">
+      <div class="rounded-2xl p-8 shadow-2xl max-w-lg w-full relative" style="background: var(--color-surface-container-lowest);">
+        <button onclick="cerrarSoporte()" class="absolute top-4 right-4 p-1 rounded-lg transition-colors" style="color: var(--color-on-surface-variant);" aria-label="Cerrar">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+        <div id="soporteContent">
+          <div class="flex items-center gap-3 mb-8">
+            <span class="material-symbols-outlined text-3xl" style="color: var(--color-primary);">help_outline</span>
+            <h3 class="font-headline" style="color: var(--color-primary);">Soporte</h3>
+          </div>
+          <div class="space-y-4 text-sm">
+            <div class="rounded-xl p-4" style="background: var(--color-surface-container);">
+              <p class="font-semibold flex items-center gap-2" style="color: var(--color-on-surface);"><span class="material-symbols-outlined" style="color: var(--color-primary);">mail</span> Correo electrónico</p>
+              <p class="mt-1" style="color: var(--color-on-surface-variant);">soporte@hlsite.com.co</p>
+            </div>
+            <div class="rounded-xl p-4" style="background: var(--color-surface-container);">
+              <p class="font-semibold flex items-center gap-2" style="color: var(--color-on-surface);"><span class="material-symbols-outlined" style="color: var(--color-primary);">call</span> Teléfono</p>
+              <p class="mt-1" style="color: var(--color-on-surface-variant);">+57 (1) 234 5678</p>
+            </div>
+            <div class="rounded-xl p-4" style="background: var(--color-surface-container);">
+              <p class="font-semibold flex items-center gap-2" style="color: var(--color-on-surface);"><span class="material-symbols-outlined" style="color: var(--color-primary);">schedule</span> Horarios</p>
+              <p class="mt-1" style="color: var(--color-on-surface-variant);">Lun–Vie 7:00 AM – 6:00 PM · Sáb 8:00 AM – 1:00 PM</p>
+            </div>
+            <div class="rounded-xl p-4" style="background: var(--color-surface-container);">
+              <p class="font-semibold flex items-center gap-2" style="color: var(--color-on-surface);"><span class="material-symbols-outlined" style="color: var(--color-primary);">description</span> Políticas de Privacidad</p>
+              <p class="mt-1" style="color: var(--color-on-surface-variant);">Consultar términos y condiciones disponibles en el sistema.</p>
+            </div>
+          </div>
+          <button onclick="cerrarSoporte()" class="mt-8 w-full py-3 rounded-xl font-label transition-all" style="background: var(--color-primary); color: var(--color-on-primary);">Cerrar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOADING OVERLAY -->
+    <div id="loading" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4" style="background: rgba(0,0,0,0.4);">
+      <canvas id="neuralCanvas" class="absolute inset-0 w-full h-full pointer-events-none"></canvas>
+      <div class="relative z-10 min-w-[280px] rounded-2xl p-8 shadow-2xl flex flex-col items-center gap-4 backdrop-blur-sm" style="background: rgba(var(--color-surface-container-lowest), 0.95);">
+        <span class="material-symbols-outlined text-5xl animate-pulse" style="color: var(--color-primary);">psychology</span>
+        <p class="font-headline" style="color: var(--color-primary);">Analizando Prefactura</p>
+        <p class="font-caption" id="loadingMsg" style="color: var(--color-on-surface-variant);">Verificando datos del paciente...</p>
+        <div class="w-full h-1.5 rounded-full overflow-hidden mt-2" style="background: var(--color-outline-variant);">
+          <div class="h-full rounded-full animate-pulse" style="width: 60%; background: var(--color-primary);"></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Footer -->
+<footer class="py-4 px-6 lg:px-10 flex justify-between items-center w-full z-50 shrink-0" style="background: var(--color-surface); border-top: 1px solid var(--color-outline-variant);">
+  <p class="font-caption" style="color: var(--color-on-surface-variant);">© 2025 Health & Life IPS · HL SITE Unidad de cuidado crónico. Todos los derechos reservados.</p>
+  <div class="flex items-center gap-8">
+    <a class="font-caption cursor-pointer transition-colors" onclick="mostrarSoporte('privacidad')" style="color: var(--color-on-surface-variant);">Privacidad</a>
+    <a class="font-caption cursor-pointer transition-colors" onclick="mostrarSoporte('terminos')" style="color: var(--color-on-surface-variant);">Términos de Uso</a>
+    <a class="font-caption cursor-pointer transition-colors" onclick="mostrarSoporte('contacto')" style="color: var(--color-on-surface-variant);">Soporte</a>
+  </div>
+</footer>
+
+<script>
+  // ── Theme Toggle ──
+  (function() {
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    const html = document.documentElement;
+
+    function setTheme(dark) {
+      html.classList.toggle('dark', dark);
+      html.classList.toggle('light', !dark);
+      themeIcon.textContent = dark ? 'light_mode' : 'dark_mode';
+      localStorage.setItem('theme', dark ? 'dark' : 'light');
+    }
+
+    // Init from localStorage or system preference
+    const saved = localStorage.getItem('theme');
+    if (saved) {
+      setTheme(saved === 'dark');
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      setTheme(true);
+    }
+
+    themeToggle?.addEventListener('click', () => setTheme(!html.classList.contains('dark')));
+  })();
+
+  // ── Micro-interactions for form inputs ──
+  document.querySelectorAll('input, select').forEach(el => {
+    el.addEventListener('focus', () => {
+      const icon = el.parentElement.querySelector('.material-symbols-outlined');
+      if (icon) icon.style.color = 'var(--color-primary)';
+      el.style.borderColor = 'var(--color-primary)';
+      el.style.boxShadow = '0 0 0 3px var(--color-primary-container)';
+    });
+    el.addEventListener('blur', () => {
+      const icon = el.parentElement.querySelector('.material-symbols-outlined');
+      if (icon) icon.style.color = 'var(--color-outline)';
+      el.style.borderColor = 'var(--color-outline-variant)';
+      el.style.boxShadow = 'none';
+    });
+  });
+
+  // ── Drag & Drop visual feedback ──
+  const dropzone = document.getElementById('fileUploadContainer');
+  if (dropzone) {
+    ['dragover', 'dragleave', 'drop'].forEach(evt => {
+      dropzone.addEventListener(evt, (e) => {
+        e.preventDefault();
+        const inner = dropzone.querySelector('.dropzone') || dropzone;
+        if (evt === 'dragover') {
+          dropzone.classList.add('drag-active');
+        } else {
+          dropzone.classList.remove('drag-active');
+        }
+      });
+    });
+  }
+
+  // ── File input handler ──
+  const fileInput = document.getElementById('fileUpload');
+  const fileLabel = document.getElementById('fileLabel');
+  const fileHint = document.getElementById('fileHint');
+  if (fileInput) {
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        const f = e.target.files[0];
+        fileLabel.textContent = f.name;
+        fileHint.textContent = `${(f.size / 1024).toFixed(1)} KB`;
+        fileLabel.style.color = 'var(--color-secondary)';
+        dropzone.classList.add('bg-green-50', 'border-green-300');
+        dropzone.classList.remove('drag-active');
+      } else {
+        fileLabel.textContent = 'Subir archivo CSV de prefactura';
+        fileHint.textContent = 'O arrastre y suelte aquí';
+        fileLabel.style.color = 'var(--color-primary)';
+      }
+      checkFormValidity();
+    });
+  }
+</script>
+<script src="app.js"></script>
+</body>
+</html>

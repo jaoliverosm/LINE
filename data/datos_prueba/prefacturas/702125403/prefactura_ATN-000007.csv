@@ -1,0 +1,5 @@
+﻿codigo_cups_facturado,descripcion_servicio_facturado,cantidad_facturada,valor_unitario,valor_total,id_atencion,id_paciente,soporte_clinico
+902203,Laboratorio clinico - colesterol total,1,20800,20800,ATN-000007,702125403,NO
+902202,Laboratorio clinico - glucosa,1,19476,19476,ATN-000007,702125403,SI
+903302,Imagenologia - ecografia abdominal,1,50091,50091,ATN-000007,702125403,SI
+890701,Terapia fisica - sesion,1,44391,44391,ATN-000007,702125403,SI

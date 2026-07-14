@@ -1,0 +1,3 @@
+﻿codigo_cups_facturado,descripcion_servicio_facturado,cantidad_facturada,valor_unitario,valor_total,id_atencion,id_paciente,soporte_clinico
+890205,Consulta medica general,2,56910,113820,ATN-000015,866722564,SI
+903303,Imagenologia - tomografia craneal,1,171230,171230,ATN-000015,866722564,SI

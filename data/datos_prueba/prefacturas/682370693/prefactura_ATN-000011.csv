@@ -1,0 +1,3 @@
+﻿codigo_cups_facturado,descripcion_servicio_facturado,cantidad_facturada,valor_unitario,valor_total,id_atencion,id_paciente,soporte_clinico
+903302,Imagenologia - ecografia abdominal,2,48786,97572,ATN-000011,682370693,NO
+902204,Laboratorio clinico - creatinina,1,18694,18694,ATN-000011,682370693,NO

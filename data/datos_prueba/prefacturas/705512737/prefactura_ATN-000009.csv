@@ -1,0 +1,5 @@
+﻿codigo_cups_facturado,descripcion_servicio_facturado,cantidad_facturada,valor_unitario,valor_total,id_atencion,id_paciente,soporte_clinico
+890701,Terapia fisica - sesion,1,44502,44502,ATN-000009,705512737,SI
+904301,Procedimiento - infiltracion,1,76718,76718,ATN-000009,705512737,SI
+890703,Terapia ocupacional - sesion,1,53725,53725,ATN-000009,705512737,SI
+904102,Procedimiento - sutura,1,49014,49014,ATN-000009,705512737,SI

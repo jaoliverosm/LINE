@@ -1,0 +1,5 @@
+﻿codigo_cups_facturado,descripcion_servicio_facturado,cantidad_facturada,valor_unitario,valor_total,id_atencion,id_paciente,soporte_clinico
+890205,Consulta medica general,1,79076,79076,ATN-000018,708343046,SI
+904102,Procedimiento - sutura,1,40719,40719,ATN-000018,708343046,SI
+890702,Terapia respiratoria - sesion,1,44874,44874,ATN-000018,708343046,SI
+902204,Laboratorio clinico - creatinina,1,17031,17031,ATN-000018,708343046,SI

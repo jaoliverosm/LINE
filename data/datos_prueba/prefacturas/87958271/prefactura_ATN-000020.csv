@@ -1,0 +1,6 @@
+﻿codigo_cups_facturado,descripcion_servicio_facturado,cantidad_facturada,valor_unitario,valor_total,id_atencion,id_paciente,soporte_clinico
+903302,Imagenologia - ecografia abdominal,1,70334,70334,ATN-000020,87958271,SI
+890703,Terapia ocupacional - sesion,2,45171,90342,ATN-000020,87958271,SI
+902203,Laboratorio clinico - colesterol total,1,16637,16637,ATN-000020,87958271,SI
+903303,Imagenologia - tomografia craneal,2,126883,253766,ATN-000020,87958271,SI
+890205,Consulta medica general,2,49443,98886,ATN-000020,87958271,SI

@@ -1,0 +1,3 @@
+﻿codigo_cups_facturado,descripcion_servicio_facturado,cantidad_facturada,valor_unitario,valor_total,id_atencion,id_paciente,soporte_clinico
+903302,Imagenologia - ecografia abdominal,2,67174,134348,ATN-000005,686615720,SI
+902201,Laboratorio clinico - hemograma,2,22833,45666,ATN-000005,686615720,SI

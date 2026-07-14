@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LINE — Flujo de Trabajo | Auditor Médico Digital</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: #f4f7f9;
+    color: #191c1d;
+    line-height: 1.6;
+    padding: 2rem;
+  }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding: 2rem;
+    background: linear-gradient(135deg, #003461 0%, #005b9e 100%);
+    border-radius: 1rem;
+    color: white;
+  }
+
+  header h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: 0.25rem;
+  }
+
+  header p {
+    opacity: .85;
+    font-size: 1rem;
+  }
+
+  header .badge {
+    display: inline-block;
+    margin-top: .75rem;
+    background: rgba(255,255,255,.15);
+    padding: .35rem 1rem;
+    border-radius: 999px;
+    font-size: .8rem;
+  }
+
+  h2 {
+    font-size: 1.3rem;
+    margin: 2.5rem 0 1rem;
+    color: #003461;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+  }
+
+  h2 .step-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    background: #003461;
+    color: white;
+    border-radius: 50%;
+    font-size: .85rem;
+    font-weight: 700;
+  }
+
+  /* ── Flow diagram (SVG-like with CSS) ── */
+  .flow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    margin: 2rem 0;
+  }
+
+  .flow-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .flow-node {
+    background: white;
+    border: 2px solid #c2c6d1;
+    border-radius: 1rem;
+    padding: 1rem 1.25rem;
+    text-align: center;
+    min-width: 150px;
+    flex: 1;
+    box-shadow: 0 2px 8px rgba(0,0,0,.04);
+    transition: transform .2s;
+    position: relative;
+  }
+
+  .flow-node:hover { transform: translateY(-3px); }
+
+  .flow-node .icon {
+    font-size: 1.6rem;
+    margin-bottom: .3rem;
+  }
+
+  .flow-node .label {
+    font-weight: 600;
+    font-size: .85rem;
+    color: #003461;
+  }
+
+  .flow-node .desc {
+    font-size: .7rem;
+    color: #727781;
+    margin-top: .2rem;
+  }
+
+  .flow-node.primary {
+    border-color: #003461;
+    background: #eef5fc;
+  }
+
+  .flow-node.success {
+    border-color: #006e25;
+    background: #edf9f0;
+  }
+
+  .flow-node.warning {
+    border-color: #ef6c00;
+    background: #fef4e8;
+  }
+
+  .flow-node.danger {
+    border-color: #ba1a1a;
+    background: #fdeced;
+  }
+
+  .flow-node.ai {
+    border-color: #7c3aed;
+    background: #f3ecfe;
+  }
+
+  .flow-arrow {
+    font-size: 1.4rem;
+    color: #727781;
+    flex-shrink: 0;
+  }
+
+  .flow-arrow.down {
+    transform: rotate(90deg);
+  }
+
+  /* ── Branch ── */
+  .branch {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  .branch-item {
+    flex: 1;
+    min-width: 180px;
+    text-align: center;
+    padding: 1rem;
+    border-radius: 1rem;
+    border: 2px dashed #c2c6d1;
+    background: white;
+  }
+
+  .branch-item .title {
+    font-weight: 700;
+    font-size: .85rem;
+    margin-bottom: .4rem;
+    color: #191c1d;
+  }
+
+  .branch-item ul {
+    list-style: none;
+    font-size: .75rem;
+    color: #424750;
+    text-align: left;
+  }
+
+  .branch-item ul li::before { content: "▸ "; color: #003461; }
+
+  /* ── Table ── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+    font-size: .85rem;
+    background: white;
+    border-radius: .5rem;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,.05);
+  }
+
+  th, td { padding: .6rem .75rem; text-align: left; border-bottom: 1px solid #e1e3e4; }
+  th { background: #003461; color: white; font-weight: 600; font-size: .8rem; }
+  tr:last-child td { border: 0; }
+  tr:hover td { background: #f4f7f9; }
+
+  .tag {
+    display: inline-block;
+    padding: .15rem .55rem;
+    border-radius: 999px;
+    font-size: .7rem;
+    font-weight: 600;
+  }
+
+  .tag-red   { background: #fdeced; color: #ba1a1a; }
+  .tag-green { background: #edf9f0; color: #006e25; }
+  .tag-orange { background: #fef4e8; color: #ef6c00; }
+  .tag-blue  { background: #eef5fc; color: #003461; }
+  .tag-purple { background: #f3ecfe; color: #7c3aed; }
+
+  /* ── Legend ── */
+  .legend {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 1.5rem 0;
+    padding: 1rem;
+    background: white;
+    border-radius: .75rem;
+    border: 1px solid #e1e3e4;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    font-size: .78rem;
+  }
+
+  .legend-dot {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    border: 2px solid;
+  }
+
+  .legend-dot.primary { background: #eef5fc; border-color: #003461; }
+  .legend-dot.ai      { background: #f3ecfe; border-color: #7c3aed; }
+  .legend-dot.success { background: #edf9f0; border-color: #006e25; }
+  .legend-dot.warning { background: #fef4e8; border-color: #ef6c00; }
+  .legend-dot.danger  { background: #fdeced; border-color: #ba1a1a; }
+
+  /* ── Pipeline details ── */
+  .pipeline {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: .6rem;
+    margin: 1rem 0;
+  }
+
+  .pipeline-step {
+    background: white;
+    border: 1px solid #e1e3e4;
+    border-radius: .6rem;
+    padding: .6rem;
+    text-align: center;
+    font-size: .72rem;
+  }
+
+  .pipeline-step .num {
+    display: inline-block;
+    width: 1.3rem; height: 1.3rem;
+    line-height: 1.3rem;
+    background: #003461;
+    color: white;
+    border-radius: 50%;
+    font-size: .65rem;
+    font-weight: 700;
+    margin-bottom: .25rem;
+  }
+
+  .pipeline-step strong { display: block; font-size: .78rem; }
+
+  /* ── Footer ── */
+  footer {
+    text-align: center;
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e1e3e4;
+    font-size: .78rem;
+    color: #727781;
+  }
+
+  @media (max-width: 640px) {
+    body { padding: 1rem; }
+    .flow-row { flex-direction: column; }
+    .flow-arrow { transform: rotate(90deg); }
+    .branch { flex-direction: column; }
+    header h1 { font-size: 1.4rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<header>
+  <h1>LINE — Auditor Médico Digital</h1>
+  <p>Flujo de trabajo: validación de prefacturas HC vs PF</p>
+  <div class="badge">Health &amp; Life IPS SAS · Capstone SIC 2025</div>
+</header>
+
+<!-- ── LEGEND ── -->
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot primary"></div> Proceso principal</div>
+  <div class="legend-item"><div class="legend-dot ai"></div> Modelo IA</div>
+  <div class="legend-item"><div class="legend-dot success"></div> Resultado positivo</div>
+  <div class="legend-item"><div class="legend-dot warning"></div> Alerta / revisión</div>
+  <div class="legend-item"><div class="legend-dot danger"></div> Error / rechazo</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<!-- FLUJO PRINCIPAL -->
+<!-- ══════════════════════════════════════════════════════════════════ -->
+
+<h2><span class="step-num">1</span> Entrada de Datos</h2>
+
+<div class="flow">
+  <div class="flow-row">
+    <div class="flow-node primary">
+      <div class="icon">📋</div>
+      <div class="label">Formulario Paciente</div>
+      <div class="desc">Nombres, tipo/número documento, EPS, régimen</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node primary">
+      <div class="icon">📄</div>
+      <div class="label">Archivo Prefactura</div>
+      <div class="desc">CSV (columnas CUPS, descripción, cantidad) o PDF</div>
+    </div>
+  </div>
+</div>
+
+<h2><span class="step-num">2</span> Verificación y Cruce</h2>
+
+<div class="flow">
+  <div class="flow-row">
+    <div class="flow-node">
+      <div class="icon">🔍</div>
+      <div class="label">Verificación BDUA</div>
+      <div class="desc">Consulta ADRES vía Apitude — ¿afiliado activo?</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node">
+      <div class="icon">🗄️</div>
+      <div class="label">Consulta BD Local</div>
+      <div class="desc">Busca paciente y atenciones en linea.db</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node">
+      <div class="icon">🔄</div>
+      <div class="label">Cruce HC vs PF</div>
+      <div class="desc">Cada item PF se cruza con HC por CUPS + atención</div>
+    </div>
+  </div>
+</div>
+
+<h2><span class="step-num">3</span> Reglas de Auditoría</h2>
+
+<div class="flow">
+  <div class="flow-row">
+    <div class="flow-node warning">
+      <div class="icon">📏</div>
+      <div class="label">Motor de Reglas</div>
+      <div class="desc">Compara CUPS, cantidades, soporte clínico documentado</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="branch" style="width:auto;flex:2">
+      <div class="branch-item" style="border-color:#ba1a1a;">
+        <div class="title" style="color:#ba1a1a;">⚠️ Alertas detectadas</div>
+        <ul>
+          <li>SIN_SOPORTE_CLINICO</li>
+          <li>CODIGO_NO_COINCIDE</li>
+          <li>CANTIDAD_DISCORDANTE</li>
+          <li>NO_FACTURADO (fuga)</li>
+        </ul>
+      </div>
+      <div class="branch-item" style="border-color:#006e25;">
+        <div class="title" style="color:#006e25;">✅ Sin alertas</div>
+        <ul>
+          <li>CUPS coinciden</li>
+          <li>Cantidades iguales</li>
+          <li>Soporte clínico: SÍ</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h2><span class="step-num">4</span> Modelos de IA (Opcional)</h2>
+
+<div class="flow">
+  <div class="flow-row">
+    <div class="flow-node ai">
+      <div class="icon">🧠</div>
+      <div class="label">CNN MobileNetV2</div>
+      <div class="desc">Clasificación binaria local: ¿inconsistente? Sí/No</div>
+    </div>
+    <div class="flow-arrow">+</div>
+    <div class="flow-node ai">
+      <div class="icon">🤖</div>
+      <div class="label">NVIDIA Nemotron-3</div>
+      <div class="desc">LLM externo: análisis clínico detallado con contexto</div>
+    </div>
+  </div>
+</div>
+
+<h2><span class="step-num">5</span> Resultado</h2>
+
+<div class="flow">
+  <div class="flow-row">
+    <div class="flow-node success">
+      <div class="icon">✅</div>
+      <div class="label">APROBAR</div>
+      <div class="desc">&lt;30% inconsistencias</div>
+    </div>
+    <div class="flow-node warning">
+      <div class="icon">🔶</div>
+      <div class="label">REVISAR</div>
+      <div class="desc">&gt;0% inconsistencias</div>
+    </div>
+    <div class="flow-node danger">
+      <div class="icon">❌</div>
+      <div class="label">RECHAZAR</div>
+      <div class="desc">&gt;30% inconsistencias</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<!-- PIPELINE CNN DETALLADO -->
+<!-- ══════════════════════════════════════════════════════════════════ -->
+
+<h2>Pipeline CNN — Tabular a Imagen 32×32×3</h2>
+
+<div class="pipeline">
+  <div class="pipeline-step">
+    <div class="num">1</div>
+    <strong>Imputación</strong>
+    <span>Nulos: num→0 / cat→"SIN_DATO"</span>
+  </div>
+  <div class="pipeline-step">
+    <div class="num">2</div>
+    <strong>Escalado</strong>
+    <span>6 columnas numéricas con StandardScaler</span>
+  </div>
+  <div class="pipeline-step">
+    <div class="num">3</div>
+    <strong>OHE</strong>
+    <span>13 categóricas → 111 dummies</span>
+  </div>
+  <div class="pipeline-step">
+    <div class="num">4</div>
+    <strong>t-SNE Grid</strong>
+    <span>Cada feature se mapea a celda 32×32</span>
+  </div>
+  <div class="pipeline-step">
+    <div class="num">5</div>
+    <strong>Normalización</strong>
+    <span>Global min-max (valores train)</span>
+  </div>
+  <div class="pipeline-step">
+    <div class="num">6</div>
+    <strong>CNN</strong>
+    <span>MobileNetV2 → probabilidad</span>
+  </div>
+  <div class="pipeline-step">
+    <div class="num">7</div>
+    <strong>Threshold</strong>
+    <span>0.5 → CONSISTENTE / INCONSISTENTE</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<!-- TABLA DE ALERTAS -->
+<!-- ══════════════════════════════════════════════════════════════════ -->
+
+<h2>Alertas del Sistema</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Tipo Alerta</th>
+      <th>Severidad</th>
+      <th>Descripción</th>
+      <th>Origen</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><span class="tag tag-red">SIN_SOPORTE_CLINICO</span></td>
+      <td><span class="tag tag-red">ALTA</span></td>
+      <td>Servicio facturado que no aparece registrado en la Historia Clínica</td>
+      <td>Regla / CNN</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-red">CODIGO_NO_COINCIDE</span></td>
+      <td><span class="tag tag-red">ALTA</span></td>
+      <td>El código CUPS facturado no coincide con el registrado en HC</td>
+      <td>Regla</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-orange">CANTIDAD_DISCORDANTE</span></td>
+      <td><span class="tag tag-orange">MEDIA</span></td>
+      <td>La cantidad facturada difiere de la cantidad realizada según HC</td>
+      <td>Regla</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-red">NO_FACTURADO</span></td>
+      <td><span class="tag tag-red">ALTA</span></td>
+      <td>Procedimiento realizado (HC) que no aparece en la prefactura — fuga de ingreso</td>
+      <td>Regla</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-green">CONSISTENTE</span></td>
+      <td><span class="tag tag-green">NINGUNA</span></td>
+      <td>Todo coincide: CUPS, cantidad, soporte clínico documentado</td>
+      <td>—</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<!-- DATASET -->
+<!-- ══════════════════════════════════════════════════════════════════ -->
+
+<h2>Dataset — línea.db</h2>
+
+<table>
+  <thead>
+    <tr><th>Métrica</th><th>Valor</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Total cruces HC vs PF</td><td><strong>3,126</strong></td></tr>
+    <tr><td>Pacientes únicos</td><td><strong>294</strong></td></tr>
+    <tr><td>Atenciones únicas</td><td><strong>1,200</strong></td></tr>
+    <tr><td>Cruces consistentes</td><td><strong>2,477</strong> <span class="tag tag-green">79.2%</span></td></tr>
+    <tr><td>Cruces inconsistentes</td><td><strong>649</strong> <span class="tag tag-red">20.8%</span></td></tr>
+  </tbody>
+</table>
+
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<!-- TECNOLOGÍAS -->
+<!-- ══════════════════════════════════════════════════════════════════ -->
+
+<h2>Tecnología Utilizada</h2>
+
+<table>
+  <thead>
+    <tr><th>Capa</th><th>Tecnología</th><th>Propósito</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><span class="tag tag-blue">Backend</span></td><td><strong>FastAPI</strong> (Python)</td><td>API REST con documentación automática en /docs</td></tr>
+    <tr><td><span class="tag tag-blue">Frontend</span></td><td><strong>HTML + Tailwind + JS Vanilla</strong></td><td>Interfaz responsive sin frameworks pesados</td></tr>
+    <tr><td><span class="tag tag-blue">Base de Datos</span></td><td><strong>SQLite</strong></td><td>BD ligera embebida (linea.db), sin servidor externo</td></tr>
+    <tr><td><span class="tag tag-purple">IA Local</span></td><td><strong>TensorFlow / MobileNetV2</strong></td><td>CNN clasificadora binaria sobre imágenes 32×32×3</td></tr>
+    <tr><td><span class="tag tag-purple">IA Externa</span></td><td><strong>NVIDIA Nemotron-3-nano</strong></td><td>LLM con razonamiento clínico vía API</td></tr>
+    <tr><td><span class="tag tag-blue">Preprocesamiento</span></td><td><strong>pandas, numpy, scikit-learn</strong></td><td>Imputación, escalado, OHE, t-SNE, normalización</td></tr>
+    <tr><td><span class="tag tag-blue">BDUA</span></td><td><strong>Apitude API</strong></td><td>Verificación de afiliación en ADRES (Base Única de Afiliados)</td></tr>
+    <tr><td><span class="tag tag-blue">PDF</span></td><td><strong>pypdf</strong></td><td>Extracción de texto de facturas PDF (modo Nemotron)</td></tr>
+  </tbody>
+</table>
+
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<!-- CONCEPTOS CLAVE -->
+<!-- ══════════════════════════════════════════════════════════════════ -->
+
+<h2>Conceptos Clave</h2>
+
+<table>
+  <thead>
+    <tr><th>Término</th><th>Significado</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><strong>CUPS</strong></td><td>Código Único de Procedimientos en Salud — clasificación oficial colombiana de procedimientos médicos y quirúrgicos. Cada servicio tiene un código CUPS único.</td></tr>
+    <tr><td><strong>HC</strong></td><td>Historia Clínica — registro de lo que realmente se le hizo al paciente durante la atención (procedimientos, cantidades, fechas).</td></tr>
+    <tr><td><strong>PF</strong></td><td>Prefactura — documento que la IPS prepara para cobrar servicios. Debe coincidir con lo registrado en HC.</td></tr>
+    <tr><td><strong>BDUA</strong></td><td>Base de Datos Única de Afiliados — administrada por ADRES. Contiene información de afiliación (EPS, régimen, estado) de todos los ciudadanos colombianos.</td></tr>
+    <tr><td><strong>Fuga de Ingreso</strong></td><td>Procedimiento realizado (registrado en HC) que no se incluye en la prefactura. La IPS pierde el ingreso por ese servicio.</td></tr>
+    <tr><td><strong>Nemotron</strong></td><td>LLM de NVIDIA (Nemotron-3-nano-8B) usado como alternativa al modelo local. Analiza el contexto clínico completo y genera explicaciones detalladas.</td></tr>
+    <tr><td><strong>t-SNE</strong></td><td>Algoritmo de reducción de dimensionalidad: mapea los 111 features a coordenadas (x,y) en un grid 32×32 para construir la imagen que alimenta la CNN.</td></tr>
+  </tbody>
+</table>
+
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<!-- ESTRUCTURA -->
+<!-- ══════════════════════════════════════════════════════════════════ -->
+
+<h2>Estructura del Proyecto</h2>
+
+<pre style="background:white;border:1px solid #e1e3e4;border-radius:.6rem;padding:1rem;font-size:.78rem;overflow-x:auto;line-height:1.5;">
+LINE/
+├── server.py                         Backend FastAPI (endpoints REST)
+├── preprocesamiento.py               Pipeline tabular → imagen 32×32×3
+├── build_db.py                       Construye linea.db desde CSV maestro
+├── test_infer.py                     Test de inferencia CNN
+├── find_incon.py                     Busca inconsistencias en BD
+├── inspect_pkl.py                    Inspecciona artefactos .pkl
+├── requirements.txt                  Dependencias Python
+├── start.bat / start.sh              Scripts de inicio automático
+├── linea.db                          SQLite (3,126 cruces · 294 pacientes · 1,200 atenciones)
+├── data/
+│   ├── dataset_maestro.csv           Dataset etiquetado HC vs PF
+│   └── db_meta.json                  Metadatos de la BD
+├── models/
+│   ├── auditor_medico_cnn.keras      CNN MobileNetV2 entrenado
+│   └── artefactos_preprocesamiento.pkl  Pipeline (scaler, t-SNE, threshold, top_categories)
+├── frontend/
+│   ├── index.html                    Interfaz de usuario (Tailwind)
+│   └── app.js                        Lógica del frontend
+├── docs/
+│   ├── README.md                     Documentación completa
+│   └── workflow.html                 Este diagrama visual
+└── venv/                             Entorno virtual Python
+</pre>
+
+<footer>
+  Health &amp; Life IPS SAS — HL SITE Unidad de Cuidado Crónico<br>
+  Capstone Sistemas Inteligentes y Computacionales 2025
+</footer>
+
+</div>
+
+</body>
+</html>

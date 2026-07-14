@@ -1,0 +1,3 @@
+﻿codigo_cups_facturado,descripcion_servicio_facturado,cantidad_facturada,valor_unitario,valor_total,id_atencion,id_paciente,soporte_clinico
+890301,Consulta psicologia,2,41129,82258,ATN-000014,207156084,SI
+890302,Consulta nutricion,4,57349,229396,ATN-000014,207156084,SI

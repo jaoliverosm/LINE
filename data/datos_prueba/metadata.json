@@ -1,0 +1,59 @@
+{
+  "fecha_generacion": "2026-07-10T22:58:05.338017",
+  "n_pacientes": 12,
+  "n_atenciones": 21,
+  "n_hc_registros": 71,
+  "n_prefacturas": 21,
+  "n_consistentes": 15,
+  "n_inconsistentes": 6,
+  "pacientes": [
+    {
+      "id": "524429079",
+      "nombre": "Luciana Rivera"
+    },
+    {
+      "id": "865354214",
+      "nombre": "Paula Ortiz"
+    },
+    {
+      "id": "507655256",
+      "nombre": "Ana Ortiz"
+    },
+    {
+      "id": "686615720",
+      "nombre": "Diego Sanchez"
+    },
+    {
+      "id": "702125403",
+      "nombre": "Luciana Chavez"
+    },
+    {
+      "id": "705512737",
+      "nombre": "Juan Diaz"
+    },
+    {
+      "id": "682370693",
+      "nombre": "Diego Ramirez"
+    },
+    {
+      "id": "207156084",
+      "nombre": "Maria Gonzalez"
+    },
+    {
+      "id": "866722564",
+      "nombre": "Carlos Diaz"
+    },
+    {
+      "id": "707454486",
+      "nombre": "Nicolas Torres"
+    },
+    {
+      "id": "708343046",
+      "nombre": "Laura Hernandez"
+    },
+    {
+      "id": "87958271",
+      "nombre": "Carlos Hernandez"
+    }
+  ]
+}
