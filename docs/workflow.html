@@ -655,15 +655,15 @@ LINE/
 ├── server.py                         Backend FastAPI (endpoints REST)
 ├── preprocesamiento.py               Pipeline tabular → imagen 32×32×3
 ├── build_db.py                       Construye linea.db desde CSV maestro
-├── test_infer.py                     Test de inferencia CNN
-├── find_incon.py                     Busca inconsistencias en BD
-├── inspect_pkl.py                    Inspecciona artefactos .pkl
 ├── requirements.txt                  Dependencias Python
 ├── start.bat / start.sh              Scripts de inicio automático
 ├── linea.db                          SQLite (3,126 cruces · 294 pacientes · 1,200 atenciones)
 ├── data/
 │   ├── dataset_maestro.csv           Dataset etiquetado HC vs PF
-│   └── db_meta.json                  Metadatos de la BD
+│   ├── 03_historia_clinica_detalle.csv Historia clínica detalle (datos de prueba)
+│   ├── 04_prefactura.csv             Prefacturas (datos de prueba)
+│   ├── db_meta.json                  Metadatos de la BD
+│   └── datos_prueba/                 Archivos de prueba adicionales
 ├── models/
 │   ├── auditor_medico_cnn.keras      CNN MobileNetV2 entrenado
 │   └── artefactos_preprocesamiento.pkl  Pipeline (scaler, t-SNE, threshold, top_categories)
@@ -671,7 +671,8 @@ LINE/
 │   ├── index.html                    Interfaz de usuario (Tailwind)
 │   └── app.js                        Lógica del frontend
 ├── docs/
-│   ├── README.md                     Documentación completa
+│   ├── README.md                     Documentación técnica
+│   ├── MIGRATION.md                  Guía de migración a producción
 │   └── workflow.html                 Este diagrama visual
 └── venv/                             Entorno virtual Python
 </pre>

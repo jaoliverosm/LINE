@@ -162,15 +162,15 @@ LINE/
 ├── server.py                         Backend FastAPI
 ├── preprocesamiento.py               Pipeline tabular → imagen para CNN
 ├── build_db.py                       Construye SQLite desde CSV maestro
-├── test_infer.py                     Test de inferencia CNN
-├── find_incon.py                     Busca inconsistencias en BD
-├── inspect_pkl.py                    Inspecciona artefactos .pkl
 ├── requirements.txt
 ├── start.bat / start.sh              Scripts de inicio
 ├── linea.db                          Base SQLite (3126 cruces, 294 pacientes)
 ├── data/
 │   ├── dataset_maestro.csv           Datos etiquetados HC vs PF
-│   └── db_meta.json                  Metadatos de la BD
+│   ├── 03_historia_clinica_detalle.csv Historia clínica detalle (datos de prueba)
+│   ├── 04_prefactura.csv             Prefacturas (datos de prueba)
+│   ├── db_meta.json                  Metadatos de la BD
+│   └── datos_prueba/                 Archivos de prueba adicionales
 ├── models/
 │   ├── auditor_medico_cnn.keras      CNN MobileNetV2 entrenado
 │   └── artefactos_preprocesamiento.pkl  Parámetros del pipeline
@@ -178,7 +178,8 @@ LINE/
 │   ├── index.html                    Interfaz de usuario
 │   └── app.js                        Lógica del frontend
 ├── docs/
-│   ├── README.md                     Este documento
+│   ├── README.md                     Documentación técnica
+│   ├── MIGRATION.md                  Guía de migración a producción
 │   └── workflow.html                 Diagrama visual del flujo
 └── venv/                             Entorno virtual Python
 ```
