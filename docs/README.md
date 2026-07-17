@@ -94,19 +94,55 @@ Usuario completa formulario con datos del paciente y sube un archivo:
 Consulta la API de Apitude para verificar afiliación activa del paciente en la BD Única de Afiliados. Si no hay API key, procede con datos locales.
 
 ### 3. Cruce HC vs PF (Motor de Reglas v2.0)
-Por cada atención, compara sets de códigos CUPS facturados vs clínicamente soportados. Detecta:
 
-| Alerta | Significado |
-|--------|-------------|
-| `SIN_SOPORTE_CLINICO` | Servicio facturado sin registro en HC |
-| `CODIGO_NO_COINCIDE` | CUPS facturado ≠ CUPS en HC |
-| `CANTIDAD_DISCORDANTE` | Cantidad facturada ≠ cantidad realizada |
-| `CONSISTENTE` | Coinciden CUPS, cantidad y hay soporte |
-| `NO_FACTURADO` | Procedimiento en HC que no aparece en PF (fuga de ingreso) |
-| `SIN_AUTORIZACION_EPS` | Servicio sin autorización de la EPS |
-| `SOPORTE_MEDICO_INSUFICIENTE` | Falta soporte médico documentado |
-| `SERVICIO_ALTO_COSTO` | Servicio de alto costo sin validación especial |
-| `TEMPORAL_DISCORDANTE` | Incoherencia temporal atención-facturación |
+El motor de reglas v2.0 compara **sets de códigos CUPS por atención** en lugar de comparar fila por fila. Esto permite una detección más precisa de inconsistencias y fugas de ingresos.
+
+#### Cómo funciona la comparación:
+
+```
+Atención #12345
+├── Prefactura (CUPS facturados): {890201, 890202, 890203, 890204}
+├── Historia Clínica (CUPS realizados): {890201, 890202, 890203}
+└── Resultado del cruce:
+    ├── ✅ 890201, 890202, 890203 → CONSISTENTE (en ambos sets)
+    ├── ⚠️ 890204 → SIN_SOPORTE_CLINICO (solo en prefactura)
+    └── 🔍 Validaciones adicionales aplicadas:
+        ├── ¿Tiene autorización EPS? → SÍ/NO
+        ├── ¿Soporte médico diario completo? → SÍ/NO
+        ├── ¿Es servicio de alto costo? → SÍ/NO
+        └── ¿Coherencia temporal? → SÍ/NO
+```
+
+#### Alertas detectadas por el motor v2.0:
+
+| Alerta | Significado | Severidad |
+|--------|-------------|-----------|
+| `SIN_SOPORTE_CLINICO` | Servicio facturado sin registro en HC | 🔴 ALTA |
+| `CODIGO_NO_COINCIDE` | CUPS facturado ≠ CUPS en HC | 🔴 ALTA |
+| `CANTIDAD_DISCORDANTE` | Cantidad facturada ≠ cantidad realizada | 🟠 MEDIA |
+| `CONSISTENTE` | Coinciden CUPS, cantidad y hay soporte | 🟢 NINGUNA |
+| `NO_FACTURADO` | Procedimiento en HC que no aparece en PF (fuga) | 🔴 ALTA |
+| `SIN_AUTORIZACION_EPS` | Servicio sin autorización de la EPS | 🔴 ALTA |
+| `SOPORTE_MEDICO_INSUFICIENTE` | Falta soporte médico documentado | 🟠 MEDIA |
+| `SERVICIO_ALTO_COSTO` | Servicio de alto costo sin validación especial | 🔴 ALTA |
+| `TEMPORAL_DISCORDANTE` | Incoherencia temporal atención-facturación | 🟠 MEDIA |
+
+#### Ejemplo de validación completa:
+
+```
+Item: 890201 - Consulta médica general
+├── Prefactura: 2 unidades, $50,000 total
+├── Historia Clínica: 2 unidades realizadas
+├── Validaciones v2.0:
+│   ├── ✅ CUPS coincide
+│   ├── ✅ Cantidad coincide
+│   ├── ✅ Tiene soporte clínico
+│   ├── ✅ Autorización EPS verificada
+│   ├── ✅ Soporte médico diario completo
+│   ├── ✅ No es servicio de alto costo
+│   └── ✅ Coherencia temporal correcta
+└── Resultado: CONSISTENTE
+```
 
 ### 4. Modelos de IA (opcionales)
 

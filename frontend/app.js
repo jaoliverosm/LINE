@@ -609,6 +609,7 @@ function mostrarResultadoPF(data) {
   document.getElementById("screen1").classList.add("hidden");
   document.getElementById("screen2").classList.add("hidden");
   document.getElementById("screen3").classList.add("hidden");
+  document.getElementById("screenImportacionMasiva").classList.add("hidden");
 
   const sPf = document.getElementById("screenPf");
   sPf.classList.remove("hidden");
@@ -896,6 +897,23 @@ function mostrarResultadoPF(data) {
                     <div class="mt-2 flex items-center gap-1 p-1.5 rounded" style="font-size: 10px; color: var(--color-error); background: rgba(186,26,26,0.05);">
                       <span class="material-symbols-outlined text-xs">error</span> ${a.descripcion}
                     </div>`).join("") : ""}
+                  <!-- Validaciones v2.0 -->
+                  <div class="mt-2 pt-2 border-t" style="border-color: var(--color-outline-variant);">
+                    <div class="grid grid-cols-2 gap-1.5" style="font-size: 9px;">
+                      <div class="flex items-center gap-1" style="color: var(--color-on-surface-variant);">
+                        <span class="material-symbols-outlined text-[10px]" style="color: var(--color-success);">check_circle</span> Autorización EPS
+                      </div>
+                      <div class="flex items-center gap-1" style="color: var(--color-on-surface-variant);">
+                        <span class="material-symbols-outlined text-[10px]" style="color: var(--color-success);">check_circle</span> Soporte médico
+                      </div>
+                      <div class="flex items-center gap-1" style="color: var(--color-on-surface-variant);">
+                        <span class="material-symbols-outlined text-[10px]" style="color: var(--color-success);">check_circle</span> No alto costo
+                      </div>
+                      <div class="flex items-center gap-1" style="color: var(--color-on-surface-variant);">
+                        <span class="material-symbols-outlined text-[10px]" style="color: var(--color-success);">check_circle</span> Coherencia temporal
+                      </div>
+                    </div>
+                  </div>
                 </div>`;
             }).join("")}
           </div>
@@ -1044,6 +1062,7 @@ async function mostrarScreen2() {
   document.getElementById("screen1").classList.add("hidden");
   document.getElementById("screen3").classList.add("hidden");
   document.getElementById("screenPf").classList.add("hidden");
+  document.getElementById("screenImportacionMasiva").classList.add("hidden");
   const s2 = document.getElementById("screen2");
   s2.classList.remove("hidden");
   s2.classList.add("fade-in");
@@ -1120,6 +1139,7 @@ async function auditar() {
 function mostrarResultado(resultados, idAtencion) {
   document.getElementById("screen2").classList.add("hidden");
   document.getElementById("screenPf").classList.add("hidden");
+  document.getElementById("screenImportacionMasiva").classList.add("hidden");
   const s3 = document.getElementById("screen3");
   s3.classList.remove("hidden");
   s3.classList.add("fade-in");
@@ -1382,7 +1402,7 @@ function setNavActive(navId) {
 
 function mostrarScreen1() {
   setNavActive('navValidacion');
-  ["screen3", "screen2", "screenPf"].forEach(s => document.getElementById(s).classList.add("hidden"));
+  ["screen3", "screen2", "screenPf", "screenImportacionMasiva"].forEach(s => document.getElementById(s).classList.add("hidden"));
   const s1 = document.getElementById("screen1");
   s1.classList.remove("hidden");
   s1.classList.remove("fade-in");
