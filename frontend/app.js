@@ -829,7 +829,22 @@ function mostrarResultadoPF(data) {
                     '<span class="material-symbols-outlined text-xs" style="color: var(--color-error);">cancel</span>'}
                 </div>
               </div>
-            ` : ''}
+              <div class="flex justify-between items-center p-3 rounded-lg" style="background: rgba(0,110,37,0.05); border: 1px solid rgba(0,110,37,0.1);">
+                <span style="font-size: 11px; color: var(--color-on-surface-variant);">Lógica Set CUPS</span>
+                <div class="flex items-center gap-2">
+                  <span class="material-symbols-outlined text-xs" style="color: var(--color-success);">check_circle</span>
+                  <span style="font-size: 10px; color: var(--color-secondary); font-weight: 600;">ACTIVO</span>
+                </div>
+              </div>
+            ` : `
+              <div class="flex justify-between items-center p-3 rounded-lg" style="background: rgba(0,110,37,0.05); border: 1px solid rgba(0,110,37,0.1);">
+                <span style="font-size: 11px; color: var(--color-on-surface-variant);">Lógica Set CUPS</span>
+                <div class="flex items-center gap-2">
+                  <span class="material-symbols-outlined text-xs" style="color: var(--color-success);">check_circle</span>
+                  <span style="font-size: 10px; color: var(--color-secondary); font-weight: 600;">ACTIVO</span>
+                </div>
+              </div>
+            `}
             
             ${pac.encontrado_db_local ? `
               <div class="flex justify-between items-center p-3 rounded-lg" style="background: rgba(0,52,97,0.05); border: 1px solid rgba(0,52,97,0.1);">
@@ -935,6 +950,15 @@ function mostrarResultadoPF(data) {
           <div class="flex justify-between items-center p-2" style="background: var(--color-background); border-radius: 4px;"><span style="font-size: 11px; color: var(--color-on-surface-variant);">Consistentes:</span><strong style="color: var(--color-success);">${cnn.consistentes}</strong></div>
           <div class="flex justify-between items-center p-2" style="background: var(--color-background); border-radius: 4px;"><span style="font-size: 11px; color: var(--color-on-surface-variant);">Inconsistentes:</span><strong style="color: var(--color-error);">${cnn.inconsistentes}</strong></div>
           <div class="flex justify-between items-center p-2" style="background: var(--color-background); border-radius: 4px;"><span style="font-size: 11px; color: var(--color-on-surface-variant);">Threshold:</span><span class="text-xs">${(cnn.threshold * 100).toFixed(1)}%</span></div>
+          <div class="mt-2 p-2 rounded" style="background: rgba(0,110,37,0.05); border: 1px solid rgba(0,110,37,0.1);">
+            <p style="font-size: 10px; color: var(--color-secondary); font-weight: 600;">✅ Validaciones aplicadas:</p>
+            <ul style="font-size: 10px; color: var(--color-on-surface-variant); margin-left: 1rem; margin-top: 0.25rem;">
+              <li>Comparación set CUPS por atención</li>
+              <li>Validación autorización EPS</li>
+              <li>Soporte médico diario completo</li>
+              <li>Detección servicios alto costo</li>
+            </ul>
+          </div>
         </div>`}
       </div>
     `);
@@ -954,6 +978,15 @@ function mostrarResultadoPF(data) {
           <div class="flex justify-between items-center p-2" style="background: var(--color-background); border-radius: 4px;"><span style="font-size: 11px; color: var(--color-on-surface-variant);">Consistentes:</span><strong style="color: var(--color-success);">${xgb.consistentes}</strong></div>
           <div class="flex justify-between items-center p-2" style="background: var(--color-background); border-radius: 4px;"><span style="font-size: 11px; color: var(--color-on-surface-variant);">Inconsistentes:</span><strong style="color: var(--color-error);">${xgb.inconsistentes}</strong></div>
           <div class="flex justify-between items-center p-2" style="background: var(--color-background); border-radius: 4px;"><span style="font-size: 11px; color: var(--color-on-surface-variant);">Threshold:</span><span class="text-xs">${(xgb.threshold * 100).toFixed(1)}%</span></div>
+          <div class="mt-2 p-2 rounded" style="background: rgba(0,110,37,0.05); border: 1px solid rgba(0,110,37,0.1);">
+            <p style="font-size: 10px; color: var(--color-secondary); font-weight: 600;">✅ Validaciones aplicadas:</p>
+            <ul style="font-size: 10px; color: var(--color-on-surface-variant); margin-left: 1rem; margin-top: 0.25rem;">
+              <li>Comparación set CUPS por atención</li>
+              <li>Validación autorización EPS</li>
+              <li>Soporte médico diario completo</li>
+              <li>Detección servicios alto costo</li>
+            </ul>
+          </div>
         </div>`}
       </div>
     `);

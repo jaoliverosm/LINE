@@ -13,6 +13,7 @@ Esta guía detalla los pasos necesarios para migrar el proyecto LINE desde el en
 5. [Configuración del Frontend](#configuración-del-frontend)
 6. [Verificación](#verificación)
 7. [Rollback](#rollback)
+8. [Actualizaciones Recientes (v2.0)](#actualizaciones-recientes-v20)
 
 ---
 
@@ -385,3 +386,130 @@ Para problemas durante la migración, consulte:
 - Documentación principal: `docs/README.md`
 - Issues en el repositorio del proyecto
 - Contacto de soporte: soporte@hlsite.com.co
+
+---
+
+## Actualizaciones Recientes (v2.0)
+
+### Cambios en el Motor de Reglas (v2.0)
+
+**Nuevas reglas de negocio implementadas:**
+
+1. **Comparación por set de CUPS por atención**
+   - Antes: Comparación fila por fila de items
+   - Ahora: Comparación de sets de códigos CUPS por atención
+   - Beneficio: Detección más precisa de inconsistencias y fugas
+
+2. **Validación de autorización EPS**
+   - Verifica que los servicios facturados tengan autorización de la EPS
+   - Alerta: `SIN_AUTORIZACION_EPS`
+
+3. **Soporte médico diario completo**
+   - Valida que haya soporte médico documentado para cada día de atención
+   - Alerta: `SOPORTE_MEDICO_INSUFICIENTE`
+
+4. **Detección de servicios de alto costo**
+   - Identifica servicios de alto costo que requieren validación especial
+   - Alerta: `SERVICIO_ALTO_COSTO`
+
+5. **Validación temporal (días)**
+   - Verifica la coherencia temporal entre atención y facturación
+   - Alerta: `TEMPORAL_DISCORDANTE`
+
+6. **Detección mejorada de fugas de ingresos**
+   - Identifica procedimientos realizados en HC pero no facturados
+   - Alerta: `NO_FACTURADO`
+
+### Cambios en Modelos de IA
+
+**XGBoost (Modelo en producción):**
+- Modelo entrenado en `notebooks/07_entrenamiento_xgboost_avanzado.ipynb`
+- Métricas finales:
+  - AUC-ROC: 0.8983
+  - Precision: 0.9922 (99.22%)
+  - Recall: 0.6513 (65.13%)
+  - F1: 0.7864
+  - CV 5-fold AUC: 0.8806 ± 0.0105
+- Ubicación: `models/modelo_xgboost.pkl` y `models/artefactos_xgboost.pkl`
+
+**CNN MobileNetV2:**
+- Modelo no re-ejecutable en esta copia
+- Métricas reportadas: AUC-ROC 0.7487, F1 0.4710
+- Referencia: `04_NOTEBOOKS/02_modelo_cnn_transfer_learning.ipynb`
+
+**NVIDIA Nemotron-3:**
+- LLM externo para análisis clínico detallado
+- Aplica todas las nuevas reglas de negocio
+- Genera explicaciones contextuales
+
+### Cambios en Frontend
+
+**Mejoras en modo factura por factura:**
+- ✅ Corregido: Arrastrar documentos ahora funciona correctamente
+- ✅ Agregado: Visualización de validaciones aplicadas en CNN y XGBoost
+- ✅ Agregado: Indicador visual de lógica set CUPS activa
+
+**Mejoras en modo importación masiva:**
+- ✅ Implementada lógica set CUPS por atención
+- ✅ Detección de fugas de ingresos mejorada
+- ✅ Validaciones avanzadas en procesamiento por lotes
+
+### Cambios en Documentación
+
+**Actualizados:**
+- `docs/workflow.html`: Motor de reglas v2.0 con nuevas alertas
+- `docs/MIGRATION.md`: Esta sección de actualizaciones v2.0
+- `docs/README.md`: Pendiente actualización
+
+**Archivos de configuración:**
+- `server.py`: Prompt Nemotron actualizado con nuevas reglas
+- `frontend/app.js`: Validaciones visuales mejoradas
+- `frontend/index.html`: Handler drag & drop corregido
+
+### Rutas de Archivos Actualizadas
+
+**Modelos:**
+- XGBoost: `models/modelo_xgboost.pkl` (modelo en producción)
+- Artefactos XGBoost: `models/artefactos_xgboost.pkl`
+- CNN: `models/auditor_medico_cnn.keras`
+
+**Datos:**
+- Dataset maestro: `data/dataset_maestro.csv` (3,126 registros)
+- Base de datos: `linea.db` (SQLite)
+
+**Salidas:**
+- Métricas: `outputs/reports/metrics.json`
+- Reportes: `outputs/models/xgboost_avanzado/reporte_evaluacion.txt`
+
+### Consideraciones para Migración
+
+1. **Base de datos:**
+   - Asegurar que el esquema soporte las nuevas columnas de validación
+   - Verificar que los índices estén optimizados para consultas por atención
+
+2. **Modelos:**
+   - Usar el modelo XGBoost del notebook 07 (modelo en producción)
+   - Verificar que los artefactos estén en la ruta correcta
+
+3. **Frontend:**
+   - Actualizar la URL de API según el entorno
+   - Verificar que las nuevas validaciones se muestren correctamente
+
+4. **Nemotron:**
+   - Configurar API key de NVIDIA si se usa en producción
+   - Verificar que el prompt incluya las nuevas reglas de negocio
+
+### Notas de Versión
+
+**Versión 2.0 - Julio 2026:**
+- Motor de reglas actualizado a lógica set CUPS
+- 6 nuevas alertas de negocio implementadas
+- XGBoost establecido como modelo en producción
+- Frontend mejorado con validaciones visuales
+- Documentación actualizada con nuevos flujos
+
+**Versión 1.0 - Versión anterior:**
+- Motor de reglas básico (4 alertas)
+- Comparación fila por fila
+- CNN como modelo principal
+- Frontend básico sin validaciones avanzadas

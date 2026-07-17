@@ -41,7 +41,7 @@ def main():
 
     # Tabla atenciones (ids unicos)
     ate_cols = [c for c in df.columns if c in (
-        "id_atencion","id_paciente_aten","fecha_atencion","tipo_atencion",
+        "id_atencion","id_paciente","fecha_atencion","tipo_atencion",
         "diagnostico_principal_cie10","descripcion_diagnostico","medico_tratante",
         "sede","eps_atencion")]
     df_ate = df[ate_cols].drop_duplicates(subset="id_atencion")
@@ -52,7 +52,7 @@ def main():
     conn.execute("CREATE INDEX IF NOT EXISTS idx_cruce_at ON cruce_maestro(id_atencion)")
     conn.execute("CREATE INDEX IF NOT EXISTS idx_pac_id ON pacientes(id_paciente)")
     conn.execute("CREATE INDEX IF NOT EXISTS idx_ate_id ON atenciones(id_atencion)")
-    conn.execute("CREATE INDEX IF NOT EXISTS idx_ate_pac ON atenciones(id_paciente_aten)")
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_ate_pac ON atenciones(id_paciente)")
 
     conn.commit()
     conn.close()

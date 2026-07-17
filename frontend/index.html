@@ -1021,6 +1021,7 @@
     ['dragover', 'dragleave', 'drop'].forEach(evt => {
       dropzone.addEventListener(evt, (e) => {
         e.preventDefault();
+        e.stopPropagation();
         const inner = dropzone.querySelector('.dropzone') || dropzone;
         if (evt === 'dragover') {
           dropzone.classList.add('drag-active');
@@ -1028,6 +1029,25 @@
           dropzone.classList.remove('drag-active');
         }
       });
+    });
+    
+    // Handle drop event to process the file
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const fileInput = document.getElementById('fileUpload');
+      const fileLabel = document.getElementById('fileLabel');
+      const fileHint = document.getElementById('fileHint');
+      
+      if (e.dataTransfer.files.length > 0) {
+        const file = e.dataTransfer.files[0];
+        fileInput.files = e.dataTransfer.files;
+        fileLabel.textContent = file.name;
+        fileHint.textContent = `${(file.size / 1024).toFixed(1)} KB`;
+        fileLabel.style.color = 'var(--color-secondary)';
+        dropzone.classList.add('drag-active');
+        checkFormValidity();
+      }
     });
   }
 
