@@ -368,14 +368,14 @@
   </div>
 </div>
 
-<h2><span class="step-num">3</span> Reglas de Auditoría</h2>
+<h2><span class="step-num">3</span> Reglas de Auditoría (Actualizado)</h2>
 
 <div class="flow">
   <div class="flow-row">
     <div class="flow-node warning">
       <div class="icon">📏</div>
-      <div class="label">Motor de Reglas</div>
-      <div class="desc">Compara CUPS, cantidades, soporte clínico documentado</div>
+      <div class="label">Motor de Reglas (v2.0)</div>
+      <div class="desc">Comparación por set de CUPS por atención + validaciones avanzadas</div>
     </div>
     <div class="flow-arrow">→</div>
     <div class="branch" style="width:auto;flex:2">
@@ -386,14 +386,21 @@
           <li>CODIGO_NO_COINCIDE</li>
           <li>CANTIDAD_DISCORDANTE</li>
           <li>NO_FACTURADO (fuga)</li>
+          <li>SIN_AUTORIZACION_EPS</li>
+          <li>SOPORTE_MEDICO_INSUFICIENTE</li>
+          <li>SERVICIO_ALTO_COSTO</li>
+          <li>TEMPORAL_DISCORDANTE</li>
         </ul>
       </div>
       <div class="branch-item" style="border-color:#006e25;">
-        <div class="title" style="color:#006e25;">✅ Sin alertas</div>
+        <div class="title" style="color:#006e25;">✅ Validaciones nuevas</div>
         <ul>
-          <li>CUPS coinciden</li>
-          <li>Cantidades iguales</li>
-          <li>Soporte clínico: SÍ</li>
+          <li>Comparación set CUPS por atención</li>
+          <li>Validación autorización EPS</li>
+          <li>Soporte médico diario completo</li>
+          <li>Detección servicios alto costo</li>
+          <li>Validación temporal (días)</li>
+          <li>Detección fugas de ingresos</li>
         </ul>
       </div>
     </div>

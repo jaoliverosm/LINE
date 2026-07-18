@@ -290,7 +290,7 @@ def _analizar_con_nemotron(
     if not NVIDIA_API_KEY:
         return {"disponible": False, "error": "API key de NVIDIA no configurada"}
 
-    # Construir prompt estructurado
+    # Construir prompt estructurado con reglas de negocio del jefe
     prompt = f"""Eres un auditor médico especializado en validación de prefacturas del sistema de salud colombiano (SGSSS).
 
 ## Datos del Paciente
@@ -305,7 +305,7 @@ def _analizar_con_nemotron(
     for i, item in enumerate(items_pf)
 ])}
 
-## Registros en Historia Clínica
+## Registros en Historia Clínica (por atención)
 {chr(10).join([
     f"- {i+1}. CUPS: {item.get('codigo_cups', 'N/A')} | {item.get('descripcion', 'N/A')} | Cant: {item.get('cantidad_realizada', '?')} | Soporte: {item.get('soporte_clinico', 'N/A')}"
     for i, item in enumerate(items_hc)
@@ -317,15 +317,48 @@ def _analizar_con_nemotron(
     for i, c in enumerate(cruces)
 ])}
 
+## REGLAS DE NEGOCIO PARA AUDITORÍA (CRÍTICO)
+
+Analiza cada cruce aplicando las siguientes reglas de negocio del sistema de salud colombiano:
+
+1. **COMPARACIÓN POR SET DE CUPS POR ATENCIÓN** (no fila a fila):
+   - Debes comparar el SET completo de códigos CUPS facturados vs el SET completo de códigos CUPS con soporte clínico de toda la atención
+   - Un código facturado es válido si aparece en el set de códigos con soporte clínico de esa misma atención
+   - No compares solo pares aislados de filas; analiza la canasta completa de servicios
+
+2. **VALIDACIÓN DE AUTORIZACIÓN EPS (Ambulatorio)**:
+   - Servicios ambulatorios con valor >$100,000 COP requieren autorización previa de la EPS
+   - Si el servicio es ambulatorio y alto valor, verifica si tiene autorización documentada
+   - Marca como "SIN_AUTORIZACION_EPS" si no hay evidencia de autorización
+
+3. **VALIDACIÓN DE SOPORTE MÉDICO DIARIO (Hospitalario)**:
+   - Hospitalizaciones con tratamientos complejos (valor >$200,000 COP) requieren soporte médico diario
+   - Verifica que haya evidencia de notas médicas diarias durante la hospitalización
+   - Marca como "SIN_SOPORTE_MEDICO_DIARIO" si no hay soporte documentado
+
+4. **DETECCIÓN DE SERVICIOS DE ALTO COSTO**:
+   - Servicios de alto costo (>$500,000 COP) requieren validación especial
+   - Verifica si están en Anexo 9 de servicios de alto costo del SGSSS
+   - Marca como "SERVICIO_ALTO_COSTO_SIN_VALIDACION" si no hay validación
+
+5. **VALIDACIÓN TEMPORAL**:
+   - La facturación debe ocurrir dentro de los 7 días posteriores a la atención
+   - Marca como "FACTURACION_TARDIA" si hay más de 7 días entre atención y facturación
+
+6. **DETECCIÓN DE FUGAS DE INGRESO**:
+   - Procedimientos con soporte clínico que no fueron facturados (pérdida económica para la IPS)
+   - Marca como "NO_FACTURADO" si el código HC no aparece en el set de códigos facturados
+
 Analiza cada cruce y determina:
 1. ¿El servicio facturado está clínicamente justificado según el diagnóstico?
 2. ¿Hay discrepancias en cantidades o códigos CUPS?
-3. ¿Se facturaron servicios sin soporte clínico?
+3. ¿Se facturaron servicios sin soporte clínico en el set completo de la atención?
 4. ¿Hay servicios clínicos realizados que no se facturaron (fuga de ingreso)?
+5. ¿Se cumplen las reglas de autorización EPS, soporte médico diario y validación temporal?
 
 Responde ÚNICAMENTE en formato JSON con la siguiente estructura:
 {{
-  "analisis_general": "resumen breve de la auditoria",
+  "analisis_general": "resumen breve de la auditoria aplicando reglas de negocio",
   "total_items": {{cantidad}},
   "consistentes": {{numero}},
   "inconsistentes": {{numero}},
@@ -335,13 +368,13 @@ Responde ÚNICAMENTE en formato JSON con la siguiente estructura:
       "codigo_cups_pf": "codigo",
       "codigo_cups_hc": "codigo",
       "resultado": "CONSISTENTE|INCONSISTENTE",
-      "tipo_alerta": "SIN_SOPORTE_CLINICO|CODIGO_NO_COINCIDE|CANTIDAD_DISCORDANTE|NO_FACTURADO|DIAGNOSTICO_NO_RELACIONADO|CONSISTENTE",
+      "tipo_alerta": "SIN_SOPORTE_CLINICO|CODIGO_NO_COINCIDE|CANTIDAD_DISCORDANTE|NO_FACTURADO|DIAGNOSTICO_NO_RELACIONADO|SIN_AUTORIZACION_EPS|SIN_SOPORTE_MEDICO_DIARIO|SERVICIO_ALTO_COSTO_SIN_VALIDACION|FACTURACION_TARDIA|CONSISTENTE",
       "severidad": "ALTA|MEDIA|NINGUNA",
-      "explicacion": "explicacion detallada del analisis"
+      "explicacion": "explicacion detallada del analisis aplicando reglas de negocio"
     }}
   ],
   "recomendacion": "APROBAR|REVISAR|RECHAZAR",
-  "observaciones": "notas adicionales sobre la prefactura"
+  "observaciones": "notas adicionales sobre la prefactura considerando reglas de negocio del SGSSS"
 }}
 """
 
@@ -715,7 +748,7 @@ async def analizar_prefactura(
         
         # Buscar por id_paciente (que es el número de documento en esta BD)
         pac_rows = _query(
-            "SELECT id_paciente, tipo_documento, nombres, apellidos, eps_paciente as eps, tipo_afiliacion, ciudad FROM pacientes WHERE id_paciente=? LIMIT 1",
+            "SELECT id_paciente, tipo_documento, eps_paciente as eps, tipo_afiliacion, ciudad FROM pacientes WHERE id_paciente=? LIMIT 1",
             (doc_normalizado,),
         )
         if pac_rows:
@@ -732,7 +765,7 @@ async def analizar_prefactura(
     if atencion_id:
         # Buscar datos del paciente en la atención
         atencion_paciente_row = _row(
-            "SELECT p.id_paciente, p.tipo_documento, p.nombres, p.apellidos, p.eps_paciente as eps FROM atenciones a JOIN pacientes p ON a.id_paciente_aten = p.id_paciente WHERE a.id_atencion=? LIMIT 1",
+            "SELECT p.id_paciente, p.tipo_documento, p.eps_paciente as eps FROM atenciones a JOIN pacientes p ON a.id_paciente = p.id_paciente WHERE a.id_atencion=? LIMIT 1",
             (atencion_id,),
         )
         if atencion_paciente_row:
@@ -1337,7 +1370,7 @@ def listar_pacientes(q: str = Query("", description="Busqueda por numero de docu
         # Normalizar el documento de busqueda
         doc_normalizado = _normalizar_documento(q)
         rows = _query(
-            """SELECT id_paciente, tipo_documento, nombres, apellidos, edad, sexo, eps_paciente as eps,
+            """SELECT id_paciente, tipo_documento, edad, sexo, eps_paciente as eps,
                tipo_afiliacion, ciudad FROM pacientes
                WHERE id_paciente LIKE ?
                LIMIT 20""",
@@ -1345,7 +1378,7 @@ def listar_pacientes(q: str = Query("", description="Busqueda por numero de docu
         )
     else:
         rows = _query(
-            "SELECT id_paciente, tipo_documento, nombres, apellidos, edad, sexo, eps_paciente as eps, tipo_afiliacion, ciudad FROM pacientes WHERE id_paciente IS NOT NULL LIMIT 50"
+            "SELECT id_paciente, tipo_documento, edad, sexo, eps_paciente as eps, tipo_afiliacion, ciudad FROM pacientes WHERE id_paciente IS NOT NULL LIMIT 50"
         )
     return {"results": rows, "total": len(rows)}
 
@@ -1357,7 +1390,7 @@ def detalle_paciente(pac_id: str):
         raise HTTPException(404, "Paciente no encontrado")
     atenciones = _query(
         """SELECT DISTINCT id_atencion, fecha_atencion, tipo_atencion, diagnostico_principal_cie10
-           FROM atenciones WHERE id_paciente_aten=? ORDER BY fecha_atencion DESC""",
+           FROM atenciones WHERE id_paciente=? ORDER BY fecha_atencion DESC""",
         (pac_id,),
     )
     pac["atenciones"] = atenciones
@@ -1439,7 +1472,7 @@ def listar_atenciones(pac_id: str = Query("")):
         rows = _query(
             """SELECT DISTINCT id_atencion, fecha_atencion, tipo_atencion,
                diagnostico_principal_cie10, descripcion_diagnostico
-               FROM atenciones WHERE id_paciente_aten=? ORDER BY fecha_atencion DESC""",
+               FROM atenciones WHERE id_paciente=? ORDER BY fecha_atencion DESC""",
             (pac_id,),
         )
     else:
@@ -1677,48 +1710,97 @@ async def analizar_lote(
             }
             pf_items.append(item)
 
-        # Cruzar con HC (simplificado para lote - sin IA por defecto para velocidad)
+        # Cruzar con HC usando lógica corregida de set de CUPS por atención
         cruces = []
+        
+        # Agrupar items por atención para aplicar lógica de set
+        atenciones_en_prefactura = {}
         for pf_item in pf_items:
-            cups_pf = pf_item["codigo_cups_facturado"]
             atn_id = pf_item["id_atencion"]
-
-            # Buscar en HC detalle
-            hc_match = None
+            if atn_id not in atenciones_en_prefactura:
+                atenciones_en_prefactura[atn_id] = []
+            atenciones_en_prefactura[atn_id].append(pf_item)
+        
+        # Para cada atención, obtener sets de CUPS
+        for atn_id, items_atencion in atenciones_en_prefactura.items():
+            # Set de CUPS facturados en esta atención
+            cups_facturados_set = set(item["codigo_cups_facturado"] for item in items_atencion)
+            
+            # Obtener set de CUPS con soporte clínico de esta atención
+            cups_soporte_set = set()
+            hc_items_atencion = []
+            
             if hc_detalle_df is not None and len(hc_detalle_df) > 0 and atn_id:
                 mask_atn = hc_detalle_df["id_atencion"].astype(str).str.contains(atn_id, na=False)
-                mask_cups = hc_detalle_df["codigo_cups"].astype(str).str.strip() == cups_pf
-                matches = hc_detalle_df[mask_atn & mask_cups]
-                if not matches.empty:
-                    hc_match = matches.iloc[0].to_dict()
-
-            # Determinar resultado
-            if hc_match is None:
-                resultado = "INCONSISTENTE"
-                tipo_alerta = "SIN_SOPORTE_CLINICO"
-            else:
-                cups_hc = str(hc_match.get("codigo_cups", "")).strip()
-                cant_hc = float(hc_match.get("cantidad_realizada", 0) or 0)
-                cant_pf = pf_item["cantidad_facturada"]
-
-                if cups_hc.upper() != cups_pf.upper():
+                hc_atencion = hc_detalle_df[mask_atn]
+                if not hc_atencion.empty:
+                    # Filtrar solo los que tienen soporte clínico
+                    hc_con_soporte = hc_atencion[hc_atencion["soporte_clinico"].astype(str).str.upper() == "SI"]
+                    cups_soporte_set = set(hc_con_soporte["codigo_cups"].astype(str).str.strip())
+                    hc_items_atencion = hc_atencion.to_dict('records')
+            
+            # Comparar sets para cada item de la atención
+            for pf_item in items_atencion:
+                cups_pf = pf_item["codigo_cups_facturado"]
+                
+                # Lógica corregida: el código facturado es válido si está en el set de códigos con soporte
+                tiene_soporte_en_atencion = cups_pf in cups_soporte_set if cups_soporte_set else False
+                
+                # Buscar match específico para obtener datos HC
+                hc_match = None
+                if hc_items_atencion:
+                    for hc_item in hc_items_atencion:
+                        if str(hc_item.get("codigo_cups", "")).strip() == cups_pf:
+                            hc_match = hc_item
+                            break
+                
+                # Determinar resultado con lógica corregida
+                if not tiene_soporte_en_atencion:
                     resultado = "INCONSISTENTE"
-                    tipo_alerta = "CODIGO_NO_COINCIDE"
-                elif abs(cant_hc - cant_pf) > 1e-6:
-                    resultado = "INCONSISTENTE"
-                    tipo_alerta = "CANTIDAD_DISCORDANTE"
+                    tipo_alerta = "SIN_SOPORTE_CLINICO"
+                elif hc_match:
+                    cups_hc = str(hc_match.get("codigo_cups", "")).strip()
+                    cant_hc = float(hc_match.get("cantidad_realizada", 0) or 0)
+                    cant_pf = pf_item["cantidad_facturada"]
+                    
+                    if abs(cant_hc - cant_pf) > 1e-6:
+                        resultado = "INCONSISTENTE"
+                        tipo_alerta = "CANTIDAD_DISCORDANTE"
+                    else:
+                        resultado = "CONSISTENTE"
+                        tipo_alerta = "CONSISTENTE"
                 else:
-                    resultado = "CONSISTENTE"
-                    tipo_alerta = "CONSISTENTE"
-
-            cruce = {
-                "codigo_cups_pf": cups_pf,
-                "cantidad_pf": pf_item["cantidad_facturada"],
-                "valor_total_pf": pf_item["valor_total"],
-                "resultado": resultado,
-                "tipo_alerta": tipo_alerta,
-            }
-            cruces.append(cruce)
+                    resultado = "INCONSISTENTE"
+                    tipo_alerta = "SIN_SOPORTE_CLINICO"
+                
+                cruce = {
+                    "codigo_cups_pf": cups_pf,
+                    "cantidad_pf": pf_item["cantidad_facturada"],
+                    "valor_total_pf": pf_item["valor_total"],
+                    "resultado": resultado,
+                    "tipo_alerta": tipo_alerta,
+                    "tiene_soporte_en_atencion": tiene_soporte_en_atencion,
+                }
+                cruces.append(cruce)
+        
+        # Detectar fugas de ingreso (CUPS con soporte que no fueron facturados)
+        fugas = []
+        for atn_id, items_atencion in atenciones_en_prefactura.items():
+            if hc_detalle_df is not None and len(hc_detalle_df) > 0 and atn_id:
+                mask_atn = hc_detalle_df["id_atencion"].astype(str).str.contains(atn_id, na=False)
+                hc_atencion = hc_detalle_df[mask_atn]
+                if not hc_atencion.empty:
+                    hc_con_soporte = hc_atencion[hc_atencion["soporte_clinico"].astype(str).str.upper() == "SI"]
+                    cups_facturados_set = set(item["codigo_cups_facturado"] for item in items_atencion)
+                    
+                    for _, hc_row in hc_con_soporte.iterrows():
+                        cups_hc = str(hc_row["codigo_cups"]).strip()
+                        if cups_hc not in cups_facturados_set:
+                            fugas.append({
+                                "codigo_cups": cups_hc,
+                                "descripcion": str(hc_row.get("descripcion", "")),
+                                "cantidad_realizada": float(hc_row.get("cantidad_realizada", 0)),
+                            })
 
         # Calcular estadísticas de esta prefactura
         n_consistentes = sum(1 for c in cruces if c["resultado"] == "CONSISTENTE")

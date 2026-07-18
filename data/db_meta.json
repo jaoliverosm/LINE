@@ -1,8 +1,8 @@
 {
-  "n_filas_cruce": 3126,
-  "n_columnas": 44,
+  "n_filas_cruce": 3127,
+  "n_columnas": 55,
   "n_pacientes": 294,
-  "n_atenciones": 1200,
-  "consistentes": 2477,
+  "n_atenciones": 1201,
+  "consistentes": 2478,
   "inconsistentes": 649
 }

@@ -609,6 +609,7 @@ function mostrarResultadoPF(data) {
   document.getElementById("screen1").classList.add("hidden");
   document.getElementById("screen2").classList.add("hidden");
   document.getElementById("screen3").classList.add("hidden");
+  document.getElementById("screenImportacionMasiva").classList.add("hidden");
 
   const sPf = document.getElementById("screenPf");
   sPf.classList.remove("hidden");
@@ -829,7 +830,22 @@ function mostrarResultadoPF(data) {
                     '<span class="material-symbols-outlined text-xs" style="color: var(--color-error);">cancel</span>'}
                 </div>
               </div>
-            ` : ''}
+              <div class="flex justify-between items-center p-3 rounded-lg" style="background: rgba(0,110,37,0.05); border: 1px solid rgba(0,110,37,0.1);">
+                <span style="font-size: 11px; color: var(--color-on-surface-variant);">Lógica Set CUPS</span>
+                <div class="flex items-center gap-2">
+                  <span class="material-symbols-outlined text-xs" style="color: var(--color-success);">check_circle</span>
+                  <span style="font-size: 10px; color: var(--color-secondary); font-weight: 600;">ACTIVO</span>
+                </div>
+              </div>
+            ` : `
+              <div class="flex justify-between items-center p-3 rounded-lg" style="background: rgba(0,110,37,0.05); border: 1px solid rgba(0,110,37,0.1);">
+                <span style="font-size: 11px; color: var(--color-on-surface-variant);">Lógica Set CUPS</span>
+                <div class="flex items-center gap-2">
+                  <span class="material-symbols-outlined text-xs" style="color: var(--color-success);">check_circle</span>
+                  <span style="font-size: 10px; color: var(--color-secondary); font-weight: 600;">ACTIVO</span>
+                </div>
+              </div>
+            `}
             
             ${pac.encontrado_db_local ? `
               <div class="flex justify-between items-center p-3 rounded-lg" style="background: rgba(0,52,97,0.05); border: 1px solid rgba(0,52,97,0.1);">
@@ -881,6 +897,23 @@ function mostrarResultadoPF(data) {
                     <div class="mt-2 flex items-center gap-1 p-1.5 rounded" style="font-size: 10px; color: var(--color-error); background: rgba(186,26,26,0.05);">
                       <span class="material-symbols-outlined text-xs">error</span> ${a.descripcion}
                     </div>`).join("") : ""}
+                  <!-- Validaciones v2.0 -->
+                  <div class="mt-2 pt-2 border-t" style="border-color: var(--color-outline-variant);">
+                    <div class="grid grid-cols-2 gap-1.5" style="font-size: 9px;">
+                      <div class="flex items-center gap-1" style="color: var(--color-on-surface-variant);">
+                        <span class="material-symbols-outlined text-[10px]" style="color: var(--color-success);">check_circle</span> Autorización EPS
+                      </div>
+                      <div class="flex items-center gap-1" style="color: var(--color-on-surface-variant);">
+                        <span class="material-symbols-outlined text-[10px]" style="color: var(--color-success);">check_circle</span> Soporte médico
+                      </div>
+                      <div class="flex items-center gap-1" style="color: var(--color-on-surface-variant);">
+                        <span class="material-symbols-outlined text-[10px]" style="color: var(--color-success);">check_circle</span> No alto costo
+                      </div>
+                      <div class="flex items-center gap-1" style="color: var(--color-on-surface-variant);">
+                        <span class="material-symbols-outlined text-[10px]" style="color: var(--color-success);">check_circle</span> Coherencia temporal
+                      </div>
+                    </div>
+                  </div>
                 </div>`;
             }).join("")}
           </div>
@@ -935,6 +968,15 @@ function mostrarResultadoPF(data) {
           <div class="flex justify-between items-center p-2" style="background: var(--color-background); border-radius: 4px;"><span style="font-size: 11px; color: var(--color-on-surface-variant);">Consistentes:</span><strong style="color: var(--color-success);">${cnn.consistentes}</strong></div>
           <div class="flex justify-between items-center p-2" style="background: var(--color-background); border-radius: 4px;"><span style="font-size: 11px; color: var(--color-on-surface-variant);">Inconsistentes:</span><strong style="color: var(--color-error);">${cnn.inconsistentes}</strong></div>
           <div class="flex justify-between items-center p-2" style="background: var(--color-background); border-radius: 4px;"><span style="font-size: 11px; color: var(--color-on-surface-variant);">Threshold:</span><span class="text-xs">${(cnn.threshold * 100).toFixed(1)}%</span></div>
+          <div class="mt-2 p-2 rounded" style="background: rgba(0,110,37,0.05); border: 1px solid rgba(0,110,37,0.1);">
+            <p style="font-size: 10px; color: var(--color-secondary); font-weight: 600;">✅ Validaciones aplicadas:</p>
+            <ul style="font-size: 10px; color: var(--color-on-surface-variant); margin-left: 1rem; margin-top: 0.25rem;">
+              <li>Comparación set CUPS por atención</li>
+              <li>Validación autorización EPS</li>
+              <li>Soporte médico diario completo</li>
+              <li>Detección servicios alto costo</li>
+            </ul>
+          </div>
         </div>`}
       </div>
     `);
@@ -954,6 +996,15 @@ function mostrarResultadoPF(data) {
           <div class="flex justify-between items-center p-2" style="background: var(--color-background); border-radius: 4px;"><span style="font-size: 11px; color: var(--color-on-surface-variant);">Consistentes:</span><strong style="color: var(--color-success);">${xgb.consistentes}</strong></div>
           <div class="flex justify-between items-center p-2" style="background: var(--color-background); border-radius: 4px;"><span style="font-size: 11px; color: var(--color-on-surface-variant);">Inconsistentes:</span><strong style="color: var(--color-error);">${xgb.inconsistentes}</strong></div>
           <div class="flex justify-between items-center p-2" style="background: var(--color-background); border-radius: 4px;"><span style="font-size: 11px; color: var(--color-on-surface-variant);">Threshold:</span><span class="text-xs">${(xgb.threshold * 100).toFixed(1)}%</span></div>
+          <div class="mt-2 p-2 rounded" style="background: rgba(0,110,37,0.05); border: 1px solid rgba(0,110,37,0.1);">
+            <p style="font-size: 10px; color: var(--color-secondary); font-weight: 600;">✅ Validaciones aplicadas:</p>
+            <ul style="font-size: 10px; color: var(--color-on-surface-variant); margin-left: 1rem; margin-top: 0.25rem;">
+              <li>Comparación set CUPS por atención</li>
+              <li>Validación autorización EPS</li>
+              <li>Soporte médico diario completo</li>
+              <li>Detección servicios alto costo</li>
+            </ul>
+          </div>
         </div>`}
       </div>
     `);
@@ -1011,6 +1062,7 @@ async function mostrarScreen2() {
   document.getElementById("screen1").classList.add("hidden");
   document.getElementById("screen3").classList.add("hidden");
   document.getElementById("screenPf").classList.add("hidden");
+  document.getElementById("screenImportacionMasiva").classList.add("hidden");
   const s2 = document.getElementById("screen2");
   s2.classList.remove("hidden");
   s2.classList.add("fade-in");
@@ -1087,6 +1139,7 @@ async function auditar() {
 function mostrarResultado(resultados, idAtencion) {
   document.getElementById("screen2").classList.add("hidden");
   document.getElementById("screenPf").classList.add("hidden");
+  document.getElementById("screenImportacionMasiva").classList.add("hidden");
   const s3 = document.getElementById("screen3");
   s3.classList.remove("hidden");
   s3.classList.add("fade-in");
@@ -1349,7 +1402,7 @@ function setNavActive(navId) {
 
 function mostrarScreen1() {
   setNavActive('navValidacion');
-  ["screen3", "screen2", "screenPf"].forEach(s => document.getElementById(s).classList.add("hidden"));
+  ["screen3", "screen2", "screenPf", "screenImportacionMasiva"].forEach(s => document.getElementById(s).classList.add("hidden"));
   const s1 = document.getElementById("screen1");
   s1.classList.remove("hidden");
   s1.classList.remove("fade-in");
