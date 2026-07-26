@@ -75,16 +75,10 @@ def _codificar_fila(row, top_cats):
     vec = np.zeros(len(cat_cols_order), dtype=np.float32)
 
     for i, col_name in enumerate(cat_cols_order):
-        # Parsear "prefix_value" -> prefix, value
-        if "_" not in col_name:
-            continue  # no deberia pasar
-        parts = col_name.split("_", 1)
-        prefix = parts[0]
-        value = "_".join(parts[1:])  # para valores que contengan "_"
-
-        # Reconstruir el nombre de la columna original
-        # Ej: "eps_atencion" -> prefix puede ser "eps" o "eps_atencion"
-        # Buscamos en CAT_COLS_ORIG cual coincide como prefijo
+        # Cada columna dummy sigue la convencion de pd.get_dummies:
+        # "<columna_original>_<valor>". Como varias columnas originales
+        # contienen "_" (eps_atencion, soporte_clinico, ...), primero se
+        # identifica la columna original y el valor es TODO lo que sigue.
         col_orig = None
         for c in CAT_COLS_ORIG:
             if col_name.startswith(c + "_"):
@@ -92,6 +86,7 @@ def _codificar_fila(row, top_cats):
                 break
         if col_orig is None:
             continue
+        value = col_name[len(col_orig) + 1:]
 
         raw_val = str(row.get(col_orig, "SIN_DATO"))
         # Aplicar top_categories: si no esta en la lista, mapear a "OTRO_col"
