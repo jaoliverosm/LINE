@@ -188,6 +188,19 @@ def _s(v) -> str:
     return str(v)
 
 
+def _num(v, default: float = 0.0) -> float:
+    """
+    Convierte a float de forma segura: None, NaN, celdas vacias o texto
+    no numerico -> default. Evita que un NaN llegue a la respuesta JSON
+    (FastAPI serializa con allow_nan=False y devolveria un 500).
+    """
+    try:
+        f = float(v)
+    except (TypeError, ValueError):
+        return default
+    return default if pd.isna(f) else f
+
+
 def _normalizar_eps(eps: str) -> str:
     """
     Normaliza el nombre de la EPS para comparaciones.
@@ -229,13 +242,17 @@ def _normalizar_documento(doc: str) -> str:
 
 @app.get("/api/health")
 def health():
+    try:
+        n_filas_cruce = _query("SELECT COUNT(*) as c FROM cruce_maestro")[0]["c"]
+    except Exception:
+        n_filas_cruce = 0
     return {
         "status": "ok" if (modelo_cargado or xgboost_cargado) else "degraded",
         "modelo_cargado": modelo_cargado,
         "xgboost_cargado": xgboost_cargado,
         "modo": "ia" if (modelo_cargado or xgboost_cargado) else "reglas",
         "db_path": str(DB_PATH),
-        "n_filas_cruce": len(_query("SELECT COUNT(*) as c FROM cruce_maestro")),
+        "n_filas_cruce": n_filas_cruce,
         "hc_detalle_disponible": hc_detalle_df is not None and len(hc_detalle_df) > 0,
     }
 
@@ -481,13 +498,13 @@ async def _analizar_prefactura_pdf(
     # 3. Consultar HC para contexto (si hay atencion)
     items_hc = []
     if hc_detalle_df is not None and len(hc_detalle_df) > 0 and id_atencion:
-        mask_atn = hc_detalle_df["id_atencion"].astype(str).str.contains(id_atencion, na=False)
+        mask_atn = hc_detalle_df["id_atencion"].astype(str).str.contains(id_atencion, na=False, regex=False)
         hc_rows = hc_detalle_df[mask_atn]
         for _, row in hc_rows.iterrows():
             items_hc.append({
-                "codigo_cups": str(row.get("codigo_cups", "")),
-                "descripcion": str(row.get("descripcion", "")),
-                "cantidad_realizada": float(row.get("cantidad_realizada", 0)),
+                "codigo_cups": _s(row.get("codigo_cups", "")),
+                "descripcion": _s(row.get("descripcion", "")),
+                "cantidad_realizada": _num(row.get("cantidad_realizada", 0)),
             })
 
     # 4. Enviar TODO a Nemotron
@@ -714,14 +731,14 @@ async def analizar_prefactura(
     
     for idx, row in df_pf.iterrows():
         item = {
-            "codigo_cups_facturado": str(row.get(col_cups, "")).strip(),
-            "descripcion_servicio_facturado": str(row.get(col_desc, "")).strip() if col_desc else "",
-            "cantidad_facturada": float(row.get(col_cant, 1) if col_cant else 1),
-            "valor_unitario": float(row.get(_find_col(df_pf, ["valor_unitario", "vr_unitario", "precio"]), 0) or 0),
-            "valor_total": float(row.get(_find_col(df_pf, col_mapping["valor_total"]), 0) or 0),
-            "id_prefactura": str(row.get(_find_col(df_pf, col_mapping["id_prefactura"]), "")) or f"PF-UPL-{idx}",
-            "id_atencion": str(row.get(_find_col(df_pf, col_mapping["id_atencion"]), id_atencion)) or id_atencion,
-            "id_paciente": str(row.get(_find_col(df_pf, ["id_paciente", "paciente"]), "")),
+            "codigo_cups_facturado": _s(row.get(col_cups, "")).strip(),
+            "descripcion_servicio_facturado": _s(row.get(col_desc, "")).strip() if col_desc else "",
+            "cantidad_facturada": _num(row.get(col_cant, 1) if col_cant else 1, default=1.0),
+            "valor_unitario": _num(row.get(_find_col(df_pf, ["valor_unitario", "vr_unitario", "precio"]), 0)),
+            "valor_total": _num(row.get(_find_col(df_pf, col_mapping["valor_total"]), 0)),
+            "id_prefactura": _s(row.get(_find_col(df_pf, col_mapping["id_prefactura"]), "")).strip() or f"PF-UPL-{idx}",
+            "id_atencion": _s(row.get(_find_col(df_pf, col_mapping["id_atencion"]), id_atencion)).strip() or id_atencion,
+            "id_paciente": _s(row.get(_find_col(df_pf, ["id_paciente", "paciente"]), "")).strip(),
         }
         pf_items.append(item)
         
@@ -867,7 +884,8 @@ async def analizar_prefactura(
     if paciente_info:
         verificaciones["bd_local"]["encontrado"] = True
         verificaciones["bd_local"]["indicador"] = "✅"
-        verificaciones["bd_local"]["mensaje"] = f"Paciente encontrado en BD local: {paciente_info.get('nombres', '')} {paciente_info.get('apellidos', '')} - EPS: {paciente_info.get('eps', '')}"
+        # La tabla pacientes no guarda nombres: identificar por documento/EPS
+        verificaciones["bd_local"]["mensaje"] = f"Paciente encontrado en BD local: {paciente_info.get('id_paciente', '')} - EPS: {paciente_info.get('eps', '')}"
     else:
         verificaciones["bd_local"]["encontrado"] = False
         verificaciones["bd_local"]["indicador"] = "❌"
@@ -875,8 +893,8 @@ async def analizar_prefactura(
     
     # Extraer EPS de ADRES si está disponible
     eps_adres = None
-    if adres_data and "data" in adres_data:
-        estado_afiliacion = adres_data["data"].get("estado_afiliacion", {})
+    if adres_data and adres_data.get("data"):
+        estado_afiliacion = (adres_data.get("data") or {}).get("estado_afiliacion", {}) or {}
         eps_adres = estado_afiliacion.get("entidad_normalizada") or estado_afiliacion.get("entidad")
     elif adres_data and "eps" in adres_data:
         eps_adres = adres_data.get("eps")
@@ -990,8 +1008,9 @@ async def analizar_prefactura(
         # Buscar en HC detalle
         hc_match = None
         if hc_detalle_df is not None and len(hc_detalle_df) > 0 and atn_id:
-            # Buscar por id_atencion + codigo_cups
-            mask_atn = hc_detalle_df["id_atencion"].astype(str).str.contains(atn_id, na=False)
+            # Buscar por id_atencion + codigo_cups (regex=False: el id se trata
+            # como texto literal, no como expresion regular)
+            mask_atn = hc_detalle_df["id_atencion"].astype(str).str.contains(atn_id, na=False, regex=False)
             mask_cups = hc_detalle_df["codigo_cups"].astype(str).str.strip() == cups_pf
             matches = hc_detalle_df[mask_atn & mask_cups]
 
@@ -1015,10 +1034,15 @@ async def analizar_prefactura(
                 hc_match = bd_rows[0]
             else:
                 # Buscar directamente en historia_clinica_detalle de la BD
-                bd_hc_rows = _query(
-                    "SELECT codigo_cups, descripcion, cantidad_realizada, soporte_clinico FROM historia_clinica_detalle WHERE id_atencion=? AND codigo_cups=? LIMIT 1",
-                    (atn_id, cups_pf),
-                )
+                # (la tabla puede no existir si la BD se construyo solo con
+                # el dataset maestro: no debe tumbar el endpoint)
+                try:
+                    bd_hc_rows = _query(
+                        "SELECT codigo_cups, descripcion, cantidad_realizada, soporte_clinico FROM historia_clinica_detalle WHERE id_atencion=? AND codigo_cups=? LIMIT 1",
+                        (atn_id, cups_pf),
+                    )
+                except sqlite3.Error:
+                    bd_hc_rows = []
                 if bd_hc_rows:
                     hc_match = bd_hc_rows[0]
 
@@ -1040,9 +1064,9 @@ async def analizar_prefactura(
             severidad = "ALTA"
             resultado = "INCONSISTENTE"
         else:
-            cups_hc = str(hc_match.get("codigo_cups", "")).strip()
-            cant_hc = float(hc_match.get("cantidad_realizada", 0) or 0)
-            soporte = str(hc_match.get("soporte_clinico", "")).strip()
+            cups_hc = _s(hc_match.get("codigo_cups", "")).strip()
+            cant_hc = _num(hc_match.get("cantidad_realizada", 0))
+            soporte = _s(hc_match.get("soporte_clinico", "")).strip()
 
             if hc_match.get("_cups_no_match"):
                 alertas.append(
@@ -1108,7 +1132,7 @@ async def analizar_prefactura(
             "valor_total_pf": pf_item["valor_total"],
             "codigo_cups_hc": _s(hc_match.get("codigo_cups", "")) if hc_match else "",
             "descripcion_hc": _s(hc_match.get("descripcion", "")) if hc_match else "",
-            "cantidad_hc": float(hc_match.get("cantidad_realizada", 0) or 0) if hc_match else 0,
+            "cantidad_hc": _num(hc_match.get("cantidad_realizada", 0)) if hc_match else 0,
             "resultado": resultado,
             "tipo_alerta": tipo_alerta,
             "severidad": severidad,
@@ -1118,6 +1142,8 @@ async def analizar_prefactura(
         cruces.append(cruce)
 
     # 7. Verificar items NO facturados (fuga de ingreso)
+    # Una fuga es un procedimiento CON soporte clinico que no fue facturado
+    # (misma definicion que usa el analisis por lote y la regla 6 de negocio).
     fugas = []
     if atencion_id:
         cups_facturados = set(c["codigo_cups_pf"] for c in cruces)
@@ -1125,25 +1151,29 @@ async def analizar_prefactura(
 
         # Buscar en hc_detalle_df (CSV) primero
         if hc_detalle_df is not None and len(hc_detalle_df) > 0:
-            mask_atn = hc_detalle_df["id_atencion"].astype(str).str.contains(atencion_id, na=False)
+            mask_atn = hc_detalle_df["id_atencion"].astype(str).str.contains(atencion_id, na=False, regex=False)
             hc_para_atencion = hc_detalle_df[mask_atn].to_dict('records') if not hc_detalle_df[mask_atn].empty else []
 
         # Si no se encontraron en CSV, buscar en BD SQLite
+        # (la tabla puede no existir: no debe tumbar el endpoint)
         if not hc_para_atencion:
-            bd_hc_fugas = _query(
-                "SELECT codigo_cups, descripcion, cantidad_realizada FROM historia_clinica_detalle WHERE id_atencion=?",
-                (atencion_id,),
-            )
-            hc_para_atencion = bd_hc_fugas
+            try:
+                hc_para_atencion = _query(
+                    "SELECT codigo_cups, descripcion, cantidad_realizada, soporte_clinico FROM historia_clinica_detalle WHERE id_atencion=?",
+                    (atencion_id,),
+                )
+            except sqlite3.Error:
+                hc_para_atencion = []
 
         for hc_row in hc_para_atencion:
-            cups_hc = str(hc_row.get("codigo_cups", "")).strip()
-            if cups_hc and cups_hc not in cups_facturados:
+            cups_hc = _s(hc_row.get("codigo_cups", "")).strip()
+            tiene_soporte = _s(hc_row.get("soporte_clinico", "")).strip().upper() == "SI"
+            if cups_hc and tiene_soporte and cups_hc not in cups_facturados:
                 fugas.append(
                     {
                         "codigo_cups": cups_hc,
-                        "descripcion": str(hc_row.get("descripcion", "")),
-                        "cantidad_realizada": float(hc_row.get("cantidad_realizada", 0)),
+                        "descripcion": _s(hc_row.get("descripcion", "")),
+                        "cantidad_realizada": _num(hc_row.get("cantidad_realizada", 0)),
                         "tipo_alerta": "NO_FACTURADO",
                         "severidad": "ALTA",
                         "descripcion_alerta": f"Procedimiento {cups_hc} realizado según HC pero NO facturado (fuga de ingreso).",
@@ -1164,7 +1194,13 @@ async def analizar_prefactura(
                 "valor_total_pf": "valor_total",
             }
             df_xgb = df_xgb.rename(columns=rename_map_xgb)
-            df_xgb["soporte_clinico"] = "SI"
+            # Usar el soporte clinico REAL del cruce (sobreescribirlo con "SI"
+            # sesgaba al modelo hacia CONSISTENTE). Vacio = sin dato -> "SI"
+            # para mantener el comportamiento neutro anterior.
+            if "soporte_clinico" in df_xgb.columns:
+                df_xgb["soporte_clinico"] = df_xgb["soporte_clinico"].replace("", "SI").fillna("SI")
+            else:
+                df_xgb["soporte_clinico"] = "SI"
             df_xgb["eps_atencion"] = paciente_info.get("eps", "")
             df_xgb["tipo_afiliacion"] = paciente_info.get("tipo_afiliacion", "Contributivo")
             df_xgb["tipo_atencion"] = atencion_info.get("tipo_atencion", "Ambulatoria")
@@ -1224,7 +1260,11 @@ async def analizar_prefactura(
             df_cnn["tipo_atencion"] = atencion_info.get("tipo_atencion", "Ambulatoria")
             df_cnn["sede"] = "General"
             df_cnn["tipo_item"] = "consulta"
-            df_cnn["soporte_clinico"] = "SI"
+            # Igual que en XGBoost: conservar el soporte clinico real del cruce
+            if "soporte_clinico" in df_cnn.columns:
+                df_cnn["soporte_clinico"] = df_cnn["soporte_clinico"].replace("", "SI").fillna("SI")
+            else:
+                df_cnn["soporte_clinico"] = "SI"
             # Agregar valor_unitario (faltante - necesario para el StandardScaler)
             if "valor_unitario" not in df_cnn.columns:
                 df_cnn["valor_unitario"] = df_cnn["valor_total"] / df_cnn["cantidad_facturada"].replace(0, 1)  # por defecto
@@ -1580,7 +1620,7 @@ def _calcular_reglas(row) -> dict:
             alertas.append(
                 {
                     "tipo": "CODIGO_NO_COINCIDE",
-                    "severidad": "MEDIA",
+                    "severidad": "ALTA",
                     "descripcion": f"CUPS HC={cups_hc} vs PF={cups_pf} no coinciden.",
                 }
             )
@@ -1617,6 +1657,11 @@ async def analizar_lote(
 
     El CSV debe tener columnas para agrupar por prefactura (id_prefactura)
     y las columnas estándar de items facturados.
+
+    NOTA: por ahora el lote se evalúa SOLO con el motor de reglas (set de
+    CUPS por atención). Los parámetros modelo_selector y chunk_size se
+    aceptan para compatibilidad con el frontend pero aún no ejecutan
+    modelos de IA por registro.
     """
     # 1. Leer archivo CSV
     try:
@@ -1701,12 +1746,12 @@ async def analizar_lote(
         pf_items = []
         for idx, row in grupo_df.iterrows():
             item = {
-                "codigo_cups_facturado": str(row.get(col_cups, "")).strip(),
-                "descripcion_servicio_facturado": str(row.get(_find_col(grupo_df, col_mapping["descripcion_servicio_facturado"]), "")).strip(),
-                "cantidad_facturada": float(row.get(_find_col(grupo_df, col_mapping["cantidad_facturada"]), 1) or 1),
-                "valor_total": float(row.get(_find_col(grupo_df, col_mapping["valor_total"]), 0) or 0),
+                "codigo_cups_facturado": _s(row.get(col_cups, "")).strip(),
+                "descripcion_servicio_facturado": _s(row.get(_find_col(grupo_df, col_mapping["descripcion_servicio_facturado"]), "")).strip(),
+                "cantidad_facturada": _num(row.get(_find_col(grupo_df, col_mapping["cantidad_facturada"]), 1), default=1.0),
+                "valor_total": _num(row.get(_find_col(grupo_df, col_mapping["valor_total"]), 0)),
                 "id_prefactura": id_prefactura,
-                "id_atencion": str(row.get(_find_col(grupo_df, col_mapping["id_atencion"]), "")) or "",
+                "id_atencion": _s(row.get(_find_col(grupo_df, col_mapping["id_atencion"]), "")).strip(),
             }
             pf_items.append(item)
 
@@ -1731,7 +1776,7 @@ async def analizar_lote(
             hc_items_atencion = []
             
             if hc_detalle_df is not None and len(hc_detalle_df) > 0 and atn_id:
-                mask_atn = hc_detalle_df["id_atencion"].astype(str).str.contains(atn_id, na=False)
+                mask_atn = hc_detalle_df["id_atencion"].astype(str).str.contains(atn_id, na=False, regex=False)
                 hc_atencion = hc_detalle_df[mask_atn]
                 if not hc_atencion.empty:
                     # Filtrar solo los que tienen soporte clínico
@@ -1787,19 +1832,19 @@ async def analizar_lote(
         fugas = []
         for atn_id, items_atencion in atenciones_en_prefactura.items():
             if hc_detalle_df is not None and len(hc_detalle_df) > 0 and atn_id:
-                mask_atn = hc_detalle_df["id_atencion"].astype(str).str.contains(atn_id, na=False)
+                mask_atn = hc_detalle_df["id_atencion"].astype(str).str.contains(atn_id, na=False, regex=False)
                 hc_atencion = hc_detalle_df[mask_atn]
                 if not hc_atencion.empty:
                     hc_con_soporte = hc_atencion[hc_atencion["soporte_clinico"].astype(str).str.upper() == "SI"]
                     cups_facturados_set = set(item["codigo_cups_facturado"] for item in items_atencion)
-                    
+
                     for _, hc_row in hc_con_soporte.iterrows():
-                        cups_hc = str(hc_row["codigo_cups"]).strip()
+                        cups_hc = _s(hc_row["codigo_cups"]).strip()
                         if cups_hc not in cups_facturados_set:
                             fugas.append({
                                 "codigo_cups": cups_hc,
-                                "descripcion": str(hc_row.get("descripcion", "")),
-                                "cantidad_realizada": float(hc_row.get("cantidad_realizada", 0)),
+                                "descripcion": _s(hc_row.get("descripcion", "")),
+                                "cantidad_realizada": _num(hc_row.get("cantidad_realizada", 0)),
                             })
 
         # Calcular estadísticas de esta prefactura

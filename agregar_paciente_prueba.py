@@ -1,9 +1,13 @@
 import pandas as pd
 from datetime import datetime, timedelta
 import numpy as np
+from pathlib import Path
+
+# Ruta relativa al proyecto (funciona en cualquier maquina)
+DATASET_PATH = Path(__file__).resolve().parent / "data" / "dataset_maestro.csv"
 
 # Leer dataset actual
-df = pd.read_csv('D:/PROYECTOS/LINE/data/dataset_maestro.csv')
+df = pd.read_csv(DATASET_PATH)
 
 # Obtener el último ID para generar nuevos IDs
 last_cruce = df['id_cruce'].iloc[-1] if len(df) > 0 else 'CRZ-0000000'
@@ -99,7 +103,7 @@ nueva_fila = {
 df_nuevo = pd.concat([df, pd.DataFrame([nueva_fila])], ignore_index=True)
 
 # Guardar el dataset actualizado
-df_nuevo.to_csv('D:/PROYECTOS/LINE/data/dataset_maestro.csv', index=False)
+df_nuevo.to_csv(DATASET_PATH, index=False)
 
 print(f'Paciente {paciente_nombre} (CC {paciente_id}) agregado exitosamente')
 print(f'ID cruce: {nueva_fila["id_cruce"]}')

@@ -384,7 +384,7 @@ def consultar_afiliacion(
     cached = _cache.get(cache_key)
     if cached is not None:
         # Cache valido por 5 minutos
-        if time.time() - cached["_timestamp"] < 300:
+        if time.time() - cached.get("_timestamp", 0) < 300:
             result = dict(cached)
             result.pop("_timestamp", None)
             return result
@@ -407,7 +407,7 @@ def consultar_afiliacion(
                 "error": "BDUA_NO_DISPONIBLE",
                 "mensaje": "ADRES bloquea consultas automatizadas (403). La auditoria procede con datos locales.",
             }
-            _cache[cache_key] = entry
+            _cache[cache_key] = dict(entry)  # copia: el pop de abajo no debe vaciar el timestamp cacheado
             # Devolver copia sin _timestamp
             entry.pop("_timestamp")
             return entry
@@ -420,7 +420,7 @@ def consultar_afiliacion(
                 "error": "BDUA_NO_DISPONIBLE",
                 "mensaje": f"ADRES respondio {resp_form.status_code}. Usando datos locales.",
             }
-            _cache[cache_key] = entry
+            _cache[cache_key] = dict(entry)  # copia: el pop de abajo no debe vaciar el timestamp cacheado
             entry.pop("_timestamp")
             return entry
 
@@ -488,7 +488,7 @@ def consultar_afiliacion(
             "error": "BDUA_NO_DISPONIBLE",
             "mensaje": f"ADRES respondio {resp_post.status_code} inesperado.",
         }
-        _cache[cache_key] = entry
+        _cache[cache_key] = dict(entry)  # copia: el pop de abajo no debe vaciar el timestamp cacheado
         entry.pop("_timestamp")
         return entry
 
@@ -500,7 +500,7 @@ def consultar_afiliacion(
             "error": "BDUA_NO_DISPONIBLE",
             "mensaje": "Timeout en consulta ADRES. La auditoria procede con datos locales.",
         }
-        _cache[cache_key] = entry
+        _cache[cache_key] = dict(entry)  # copia: el pop de abajo no debe vaciar el timestamp cacheado
         entry.pop("_timestamp")
         return entry
 
@@ -522,7 +522,7 @@ def consultar_afiliacion(
                 "error": "BDUA_NO_DISPONIBLE",
                 "mensaje": "Error de conexion con ADRES. La auditoria procede con datos locales.",
             }
-        _cache[cache_key] = entry
+        _cache[cache_key] = dict(entry)  # copia: el pop de abajo no debe vaciar el timestamp cacheado
         entry.pop("_timestamp")
         return entry
 
@@ -534,7 +534,7 @@ def consultar_afiliacion(
             "error": "BDUA_NO_DISPONIBLE",
             "mensaje": f"Error inesperado consultando ADRES: {e}",
         }
-        _cache[cache_key] = entry
+        _cache[cache_key] = dict(entry)  # copia: el pop de abajo no debe vaciar el timestamp cacheado
         entry.pop("_timestamp")
         return entry
 

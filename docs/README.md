@@ -40,7 +40,7 @@ Consulte `docs/MIGRATION.md` para detalles completos de los cambios en v2.0.
 | Modelo IA Local (Referencia) | TensorFlow / Keras — MobileNetV2 sobre imágenes 32×32×3 |
 | Modelo IA Externo | NVIDIA Nemotron-3-nano-8B via API |
 | Preprocesamiento | pandas, numpy, scikit-learn (StandardScaler, t-SNE) |
-| Despliegue | Windows (.bat) / Linux/macOS (.sh) |
+| Despliegue | Windows (`start.bat`) / multiplataforma (`start.py`) |
 
 ---
 
@@ -91,7 +91,7 @@ Usuario completa formulario con datos del paciente y sube un archivo:
 - **PDF** de factura (solo para modo Nemotron)
 
 ### 2. Verificación BDUA (ADRES)
-Consulta la API de Apitude para verificar afiliación activa del paciente en la BD Única de Afiliados. Si no hay API key, procede con datos locales.
+Consulta la afiliación del paciente en la BDUA mediante web scraping de la consulta ciudadana de ADRES (`backend/adres_scraper.py`, uso académico). Si ADRES no responde (403, captcha, timeout), la auditoría procede en modo contingencia con la base de datos local.
 
 ### 3. Cruce HC vs PF (Motor de Reglas v2.0)
 
@@ -195,9 +195,9 @@ El script:
 
 ### Linux / macOS
 ```bash
-chmod +x start.sh
-./start.sh
+python3 start.py
 ```
+(`start.py` es multiplataforma; en Windows también puede usarse `python start.py` en lugar de `start.bat`.)
 
 ### Manual
 ```bash
@@ -235,7 +235,7 @@ LINE/
 ├── preprocesamiento.py               Pipeline tabular → imagen para CNN
 ├── build_db.py                       Construye SQLite desde CSV maestro
 ├── requirements.txt
-├── start.bat / start.sh              Scripts de inicio
+├── start.bat / start.py              Scripts de inicio
 ├── linea.db                          Base SQLite (3126 cruces, 294 pacientes)
 ├── data/
 │   ├── dataset_maestro.csv           Datos etiquetados HC vs PF
@@ -378,9 +378,9 @@ Threshold (guardado en .pkl) → 0: CONSISTENTE / 1: INCONSISTENTE
 | Variable | Descripción |
 |----------|-------------|
 | `NVIDIA_API_KEY` | API key para NVIDIA Nemotron |
-| `NVIDIA_MODEL` | Model ID de NVIDIA (default: `nvidia/nemotron-3-nano-8b-v1`) |
+| `NVIDIA_MODEL` | Model ID de NVIDIA (default en `server.py`: `nvidia/nemotron-3-nano-30b-a3b`; `.env.example` trae `nvidia/nemotron-3-nano-8b-v1`) |
 
-La API key de **Apitude** (BDUA) se configura directamente en `server.py` (`APITUDE_KEY`).
+La verificación BDUA no requiere API key: se realiza por web scraping de la consulta ciudadana de ADRES (`backend/adres_scraper.py`).
 
 ---
 

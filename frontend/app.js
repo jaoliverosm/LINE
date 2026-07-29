@@ -264,8 +264,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   try {
     const h = await fetch(`${API}/health`).then(r => r.json());
     const badge = document.getElementById("statusBadge");
-    badge.textContent = h.modelo_cargado ? "⚡ IA Activa" : "⚠️ Modo Reglas";
-    badge.className = h.modelo_cargado
+    // IA activa si CUALQUIER modelo local esta cargado (CNN o XGBoost)
+    const iaActiva = h.modelo_cargado || h.xgboost_cargado;
+    badge.textContent = iaActiva ? "⚡ IA Activa" : "⚠️ Modo Reglas";
+    badge.className = iaActiva
       ? "badge badge-success"
       : "badge badge-warning";
   } catch(e) {
@@ -564,8 +566,10 @@ async function verificarPaciente(event) {
     formData.append("id_atencion", "");
     formData.append("modelo_selector", modeloSeleccionado);
     
-    // Pasar resultado de ADRES si está disponible
-    if (adresResp && adresResp.fuente === "adres_bdua") {
+    // Pasar SIEMPRE el resultado de ADRES si existe (encontrado, sin datos o
+    // no disponible): el backend sabe interpretar los tres casos y así se
+    // evita repetir el scraping de ADRES en el mismo submit.
+    if (adresResp && adresResp.fuente) {
       formData.append("adres_result", JSON.stringify(adresResp));
     }
 
@@ -1459,9 +1463,10 @@ function mostrarImportacionMasiva() {
   loteArchivoSeleccionado = null;
   loteResultadosGuardados = null;
 
-  // Setup file input handler
+  // Setup file input handler (onchange en vez de addEventListener para no
+  // acumular un listener nuevo cada vez que se abre esta pantalla)
   const loteFileInput = document.getElementById("loteFileUpload");
-  loteFileInput.addEventListener("change", handleLoteFileSelect);
+  loteFileInput.onchange = handleLoteFileSelect;
 }
 
 function handleLoteFileSelect(e) {

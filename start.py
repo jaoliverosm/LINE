@@ -299,17 +299,21 @@ def start_server(venv_python, port=DEFAULT_PORT):
     
     try:
         if platform.system() == "Windows":
-            # Windows: iniciar en ventana separada
+            # Windows: iniciar en una consola nueva (equivalente a `start`).
+            # Se pasa la lista de argumentos SIN shell para que las rutas con
+            # espacios (ej. "Final_version_ HL") no rompan el comando.
             subprocess.Popen(
-                ["cmd", "/c", f"start \"LINE-Backend\" {venv_python} server.py"],
-                shell=True
+                server_cmd,
+                cwd=str(BASE_DIR),
+                creationflags=subprocess.CREATE_NEW_CONSOLE,
             )
         else:
             # Linux/macOS: iniciar en background
             subprocess.Popen(
                 server_cmd,
                 stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL
+                stderr=subprocess.DEVNULL,
+                cwd=str(BASE_DIR),
             )
         
         log("Servidor iniciado")
