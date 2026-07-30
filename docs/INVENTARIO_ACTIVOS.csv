@@ -1,0 +1,18 @@
+Tipo,Nombre,Descripcion,Dueno,Ubicacion,Criticidad,Clasificacion,Formato
+Software,LINE - server.py,Backend FastAPI con modelos de IA,Lider Tecnico,LINE/,ALTA,Interno,Python
+Software,LINE/frontend/,Frontend web HTML+JS+CSS,Equipo Desarrollo,LINE/frontend/,ALTA,Interno,HTML/JS/CSS
+Datos,linea.db,Base de datos SQLite con pacientes atenciones y cruces,Lider Tecnico,LINE/,CRITICA,Sensible (Art. 5 Ley 1581),SQLite
+Datos,data/historia_clinica_detalle,CSV de historia clinica detalle (datos sinteticos),Lider Tecnico,LINE/data/,CRITICA,Sensible (salud),CSV
+Datos,data/prefactura,CSV de prefactura original (datos sinteticos),Lider Tecnico,LINE/data/,ALTA,Sensible (salud),CSV
+Modelo,auditor_medico_cnn.keras,Modelo CNN MobileNetV2 entrenado,Lider Tecnico,LINE/models/,ALTA,Propiedad intelectual,.keras
+Modelo,modelo_xgboost.pkl,Modelo XGBoost entrenado,Lider Tecnico,LINE/models/,ALTA,Propiedad intelectual,.pkl
+Modelo,artefactos_preprocesamiento.pkl,Artefactos de preprocesamiento para CNN,Lider Tecnico,LINE/models/,MEDIA,Propiedad intelectual,.pkl
+Modelo,shap_explainer_xgboost.pkl,Explainer SHAP para XGBoost,Lider Tecnico,LINE/models/,MEDIA,Propiedad intelectual,.pkl
+Infraestructura,db_meta.json,Metadatos de base de datos para (re)construccion,Lider Tecnico,LINE/,MEDIA,Interno,JSON
+Infraestructura,start.bat,Script de inicio para Windows,Lider Tecnico,LINE/,BAJA,Interno,BAT
+Infraestructura,start.py,Script de inicio Python,Lider Tecnico,LINE/,BAJA,Interno,Python
+Documentacion,README.md,Documentacion principal del proyecto,Lider Proyecto,LINE/,MEDIA,Pública,Markdown
+Documentacion,docs/,Documentacion tecnica y de cumplimiento,Lider Proyecto,LINE/docs/,MEDIA,Pública,Markdown/HTML
+Externo,NVIDIA Nemotron API,API LLM externa para analisis de prefacturas,Lider Tecnico,NVIDIA Cloud,ALTA,Proveedor,REST API
+Externo,ADRES BDUA,Base de datos unica de afiliados consultada via web scraping,Lider Tecnico,ADRES (Colombia),ALTA,Datos publicos,Web Service
+Externo,GitHub,Repositorio de codigo fuente,Lider Tecnico,GitHub Cloud,ALTA,Proveedor,Plataforma

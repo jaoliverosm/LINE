@@ -212,4 +212,21 @@ La verificación BDUA no requiere API key: se realiza por web scraping de la con
 
 ---
 
+---
+
+## Cumplimiento Normativo
+
+| Normativa | Estado | Documento |
+|-----------|--------|----------|
+| **Ley 1581 de 2012** (Protección de Datos Personales) | ⚠️ Parcial (documentación lista, controles técnicos en progreso) | [docs/AVISO_PRIVACIDAD.md](docs/AVISO_PRIVACIDAD.md) |
+| **ISO/IEC 27001:2022** (Seguridad de la Información) | ⚠️ Parcial (Fase 1 en implementación) | [docs/POLITICA_SEGURIDAD.md](docs/POLITICA_SEGURIDAD.md) |
+
+> **⚠️ Aviso legal:** Este proyecto utiliza **datos sintéticos** para fines académicos y de demostración (Capstone SIC 2025).
+> No contiene datos reales de pacientes. Para producción con datos reales, se requiere implementar
+> los controles descritos en [docs/ANALISIS_RIESGOS.md](docs/ANALISIS_RIESGOS.md) y cumplir con la
+> [Ley 1581 de 2012](https://www.funcionpublica.gov.co/eva/gestornormativo/norma.php?i=37481)
+> e [ISO/IEC 27001:2022](https://www.iso.org/standard/27001).
+
+---
+
 *Proyecto desarrollado para Health & Life IPS SAS — Capstone Sistemas Inteligentes y Computacionales 2025*

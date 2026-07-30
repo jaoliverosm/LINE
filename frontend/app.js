@@ -401,6 +401,203 @@ function normalizarEPS(eps) {
   return normalized;
 }
 
+// ── Modal de Confirmación de Discrepancias ──────────────────────
+let pendingAnalysisData = null;
+
+function mostrarModalConfirmacion(data) {
+  // Crear overlay del modal
+  const overlay = document.createElement('div');
+  overlay.id = 'confirmOverlay';
+  overlay.style.cssText = `
+    position: fixed; inset: 0; z-index: 9999;
+    background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
+    display: flex; align-items: center; justify-content: center;
+    animation: fadeIn 0.3s ease;
+  `;
+
+  const epsIgual = normalizarEPS(data.epsForm) === normalizarEPS(data.epsAdres);
+
+  overlay.innerHTML = `
+    <div class="scale-in" style="
+      background: var(--color-surface-container-lowest);
+      border-radius: 16px; max-width: 520px; width: 92%;
+      box-shadow: 0 24px 48px rgba(0,0,0,0.2);
+      overflow: hidden;
+    ">
+      <div style="padding: 24px;">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background: rgba(186,26,26,0.1);">
+            <span class="material-symbols-outlined" style="color: var(--color-error); font-size: 24px;">gpp_maybe</span>
+          </div>
+          <div>
+            <h3 class="font-headline font-semibold" style="color: var(--color-error); font-size: 16px;">Discrepancia en datos de afiliación</h3>
+            <p class="font-body-sm" style="color: var(--color-on-surface-variant);">Verifique los datos antes de continuar</p>
+          </div>
+        </div>          <div style="background: rgba(186,26,26,0.06); border: 1px solid rgba(186,26,26,0.2); border-radius: 12px; padding: 16px; margin-bottom: 16px;">
+          <div class="flex items-center gap-2 mb-3">
+            <span class="material-symbols-outlined text-sm" style="color: var(--color-error);">error</span>
+            <span style="font-size: 12px; font-weight: 600; color: var(--color-error);">Discrepancias encontradas con ADRES</span>
+          </div>
+          ${data.nombresNoCoinciden ? `
+          <div class="flex items-center gap-2 p-3 rounded-lg mb-3" style="background: rgba(186,26,26,0.08); border: 1px solid rgba(186,26,26,0.2);">
+            <span class="material-symbols-outlined text-sm" style="color: var(--color-error);">person_off</span>
+            <div>
+              <span style="font-size: 11px; font-weight: 600; color: var(--color-error); display: block;">NOMBRE NO COINCIDE</span>
+              <div style="font-size: 10px; color: var(--color-on-surface-variant); margin-top: 4px;">
+                <span><strong>Formulario:</strong> ${data.nombresForm}</span>
+                <span style="display: block;"><strong>ADRES:</strong> ${data.nombresAdres}</span>
+              </div>
+            </div>
+          </div>` : ''}
+          ${data.regimenNoCoincide ? `
+          <div class="flex items-center gap-2 p-3 rounded-lg mb-3" style="background: rgba(186,26,26,0.08); border: 1px solid rgba(186,26,26,0.2);">
+            <span class="material-symbols-outlined text-sm" style="color: var(--color-error);">clinical_notes</span>
+            <div>
+              <span style="font-size: 11px; font-weight: 600; color: var(--color-error); display: block;">RÉGIMEN NO COINCIDE</span>
+              <div style="font-size: 10px; color: var(--color-on-surface-variant); margin-top: 4px;">
+                <span><strong>Formulario:</strong> ${data.regimenForm}</span>
+                <span style="display: block;"><strong>ADRES:</strong> ${data.regimenAdres}</span>
+              </div>
+            </div>
+          </div>` : ''}
+          <div class="flex items-center justify-between p-3 rounded-lg" style="background: var(--color-surface); border: 1px solid var(--color-outline-variant);">
+            <div>
+              <span style="font-size: 10px; color: var(--color-on-surface-variant); display: block;">Formulario</span>
+              <strong style="font-size: 13px; color: var(--color-on-surface);">${data.epsForm}</strong>
+            </div>
+            <span class="material-symbols-outlined" style="font-size: 18px; color: var(--color-on-surface-variant);">arrow_forward</span>
+            <div class="text-right">
+              <span style="font-size: 10px; color: var(--color-on-surface-variant); display: block;">ADRES (BDUA)</span>
+              <strong style="font-size: 13px; color: var(--color-on-surface);">${data.epsAdres}</strong>
+            </div>
+          </div>
+          <p style="font-size: 11px; color: var(--color-error); margin-top: 10px; display: flex; align-items: center; gap: 4px;">
+            <span class="material-symbols-outlined" style="font-size: 14px;">warning</span>
+            ${data.nombresNoCoinciden ? 'El nombre no coincide con el titular de la cédula en ADRES. Posible suplantación.' : data.regimenNoCoincide ? 'El régimen reportado por ADRES no coincide con el del formulario.' : 'La EPS registrada en ADRES no coincide con la del formulario. Posible irregularidad.'}
+          </p>
+        </div>
+
+        <div style="background: rgba(0,52,97,0.04); border: 1px solid rgba(0,52,97,0.12); border-radius: 12px; padding: 16px; margin-bottom: 16px;">
+          <h4 style="font-size: 12px; font-weight: 600; color: var(--color-primary); margin-bottom: 10px;">Datos del paciente</h4>
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <div><span style="color: var(--color-on-surface-variant);">Nombre:</span> <strong>${data.nombres} ${data.apellidos}</strong></div>
+            <div><span style="color: var(--color-on-surface-variant);">Documento:</span> <strong>${data.tipoDoc} ${data.numDoc}</strong></div>
+            <div><span style="color: var(--color-on-surface-variant);">Régimen:</span> <strong>${data.tipo_afiliacion}</strong></div>
+            <div><span style="color: var(--color-on-surface-variant);">EPS Form.:</span> <strong style="color: var(--color-error);">${data.epsForm}</strong></div>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+          <button onclick="cerrarModalConfirmacion()" style="
+            flex: 1; padding: 12px; border-radius: 10px;
+            font-size: 13px; font-weight: 600; cursor: pointer;
+            border: 1px solid var(--color-outline-variant);
+            background: var(--color-surface-container-low);
+            color: var(--color-on-surface-variant);
+            transition: all 0.15s ease;
+          ">Cancelar</button>
+          <button onclick="confirmarAnalisis()" style="
+            flex: 1; padding: 12px; border-radius: 10px;
+            font-size: 13px; font-weight: 600; cursor: pointer;
+            border: none;
+            background: var(--color-primary);
+            color: var(--color-on-primary);
+            transition: all 0.15s ease;
+            display: flex; align-items: center; justify-content: center; gap: 6px;
+          ">
+            <span class="material-symbols-outlined" style="font-size: 16px;">check_circle</span>
+            Confirmar y continuar
+          </button>
+        </div>
+        <p style="font-size: 10px; color: var(--color-on-surface-variant); margin-top: 10px; text-align: center;">
+          Al confirmar, se ejecutará la validación con los modelos de IA (CNN, XGBoost, Nemotron).
+        </p>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+  pendingAnalysisData = data;
+}
+
+function cerrarModalConfirmacion() {
+  const overlay = document.getElementById('confirmOverlay');
+  if (overlay) {
+    // Eliminar backdrop-filter primero para evitar el efecto fantasma gris
+    overlay.style.backdropFilter = 'none';
+    overlay.style.webkitBackdropFilter = 'none';
+    overlay.style.background = 'transparent';
+    overlay.remove();
+  }
+  pendingAnalysisData = null;
+  // Ocultar resultados pero CONSERVAR datos del formulario para nueva verificación
+  const adresDiv = document.getElementById('adresResult');
+  if (adresDiv) {
+    adresDiv.classList.add('hidden');
+    adresDiv.innerHTML = '';
+  }
+  const localDiv = document.getElementById('localResult');
+  if (localDiv) {
+    localDiv.classList.add('hidden');
+    localDiv.innerHTML = '';
+  }
+  // Reactivar botón submit si el formulario tiene datos válidos
+  checkFormValidity();
+  // Scroll al inicio
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+async function confirmarAnalisis() {
+  const data = pendingAnalysisData;
+  cerrarModalConfirmacion();
+  if (!data) return;
+  showLoading(true);
+  document.getElementById("loadingMsg").textContent = "Analizando prefactura con IA...";
+  await ejecutarAnalisis(data);
+  showLoading(false);
+}
+
+async function ejecutarAnalisis(data) {
+  const { fileInput, tipoDoc, numDoc, eps, nombres, apellidos, modeloSeleccionado, adresResp } = data;
+
+  const formData = new FormData();
+  formData.append("file", fileInput.files[0]);
+  formData.append("tipo_doc", tipoDoc);
+  formData.append("num_doc", numDoc);
+  formData.append("eps", eps);
+  formData.append("nombres", nombres || "");
+  formData.append("apellidos", apellidos || "");
+  formData.append("id_atencion", "");
+  formData.append("modelo_selector", modeloSeleccionado);
+  
+  if (adresResp && adresResp.fuente) {
+    formData.append("adres_result", JSON.stringify(adresResp));
+  }
+
+  try {
+    const pfResp = await fetch(`${API}/prefactura/analizar`, {
+      method: "POST",
+      body: formData,
+    });
+    if (!pfResp.ok) {
+      const errText = await pfResp.text();
+      throw new Error(`Servidor respondió ${pfResp.status}: ${errText}`);
+    }
+    const pfResult = await pfResp.json();
+    if (pfResult && pfResult.error) {
+      showToast("Error analizando prefactura: " + pfResult.error, "error");
+      return;
+    }
+    ultimoResultadoPF = pfResult;
+    mostrarResultadoPF(pfResult);
+  } catch(fetchErr) {
+    console.error("Error en análisis de prefactura:", fetchErr);
+    showToast("Error al analizar la prefactura: " + fetchErr.message + "\nVerifique que el servidor esté iniciado.", "error");
+  } finally {
+    showLoading(false);
+  }
+}
+
 // ── Pantalla 1: Verificar y Analizar Prefactura ────────────────────
 async function verificarPaciente(event) {
   event.preventDefault();
@@ -456,36 +653,63 @@ async function verificarPaciente(event) {
             </div>
           </div>
           <div class="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
-            <div style="background: rgba(255,255,255,0.5); border-radius: 8px; padding: 12px;">
+            <div style="background: var(--color-surface); border: 1px solid var(--color-outline-variant); border-radius: 8px; padding: 12px;">
               <span style="font-size: 11px; color: var(--color-on-surface-variant); display: block; margin-bottom: 4px;">Nombre Completo (ADRES)</span>
               <strong style="color: var(--color-on-surface);">${d.nombres || ""} ${d.apellidos || ""}</strong>
               ${d.nombres && d.apellidos ? `<span style="font-size: 10px; color: var(--color-success); display: block; margin-top: 4px;">✓ Nombre verificado vía ADRES</span>` : `<span style="font-size: 10px; color: var(--color-warning); display: block; margin-top: 4px;">⚠ Nombre no verificado (ADRES no disponible)</span>`}
             </div>
-            <div style="background: rgba(255,255,255,0.5); border-radius: 8px; padding: 12px;">
+            <div style="background: var(--color-surface); border: 1px solid var(--color-outline-variant); border-radius: 8px; padding: 12px;">
               <span style="font-size: 11px; color: var(--color-on-surface-variant); display: block; margin-bottom: 4px;">Identificación</span>
               <strong style="color: var(--color-on-surface);">${d.tipo_de_identificacion || tipoDoc} ${d.numero_de_identificacion || numDoc}</strong>
             </div>
-            <div style="background: rgba(255,255,255,0.5); border-radius: 8px; padding: 12px;">
+            <div style="background: var(--color-surface); border: 1px solid var(--color-outline-variant); border-radius: 8px; padding: 12px;">
               <span style="font-size: 11px; color: var(--color-on-surface-variant); display: block; margin-bottom: 4px;">Estado</span>
               <strong style="color: var(--color-success); display: flex; align-items: center; gap: 4px;"><span class="material-symbols-outlined" style="font-size: 14px;">check_circle</span> ${af.estado || "ACTIVO"}</strong>
             </div>
-            <div style="background: rgba(255,255,255,0.5); border-radius: 8px; padding: 12px;">
+            <div style="background: var(--color-surface); border: 1px solid var(--color-outline-variant); border-radius: 8px; padding: 12px;">
               <span style="font-size: 11px; color: var(--color-on-surface-variant); display: block; margin-bottom: 4px;">EPS BDUA</span>
               <strong style="color: var(--color-on-surface);">${af.entidad || ""}</strong>
             </div>
-            <div style="background: rgba(255,255,255,0.5); border-radius: 8px; padding: 12px;">
+            <div style="background: var(--color-surface); border: 1px solid var(--color-outline-variant); border-radius: 8px; padding: 12px;">
               <span style="font-size: 11px; color: var(--color-on-surface-variant); display: block; margin-bottom: 4px;">Régimen</span>
               <strong style="color: var(--color-on-surface);">${af.regimen || ""}</strong>
             </div>
-            <div style="background: rgba(255,255,255,0.5); border-radius: 8px; padding: 12px;">
+            <div style="background: var(--color-surface); border: 1px solid var(--color-outline-variant); border-radius: 8px; padding: 12px;">
               <span style="font-size: 11px; color: var(--color-on-surface-variant); display: block; margin-bottom: 4px;">Nacimiento</span>
               <strong style="color: var(--color-on-surface);">${d.fecha_de_nacimiento || ""}</strong>
             </div>
           </div>
-          ${af.entidad && eps && (af.entidad_normalizada || normalizarEPS(af.entidad)) !== normalizarEPS(eps) ? `
-          <div style="margin-top: 16px; background: rgba(186, 26, 26, 0.05); border: 1px solid rgba(186, 26, 26, 0.2); border-radius: 8px; padding: 12px; color: var(--color-error); display: flex; align-items: center; gap: 8px; font-size: 14px;">
-            <span class="material-symbols-outlined">warning</span> EPS en BDUA (${af.entidad}) ≠ EPS ingresada (${eps}). Posible irregularidad.
-          </div>` : ""}
+          ${af.entidad && eps ? (function() {
+            const epsFormNorm = normalizarEPS(eps);
+            const epsAdresNorm = normalizarEPS(af.entidad_normalizada || af.entidad);
+            const epsIgual = epsFormNorm && epsAdresNorm && epsFormNorm === epsAdresNorm;
+            const badgeLabel = epsIgual ? 'COINCIDE' : 'NO COINCIDE';
+            const badgeColor = epsIgual ? 'var(--color-success)' : 'var(--color-error)';
+            const badgeBg = epsIgual ? 'rgba(46,125,50,0.1)' : 'rgba(186,26,26,0.1)';
+            const cardBg = epsIgual ? 'rgba(46,125,50,0.05)' : 'rgba(186,26,26,0.05)';
+            const cardBorder = epsIgual ? 'rgba(46,125,50,0.2)' : 'rgba(186,26,26,0.2)';
+            const textColor = epsIgual ? 'var(--color-success)' : 'var(--color-on-surface)';
+            return `
+            <div style="margin-top: 16px; background: ${cardBg}; border: 1px solid ${cardBorder}; border-radius: 10px; padding: 14px;">
+              <div class="flex items-center justify-between mb-2">
+                <span style="font-size: 11px; color: var(--color-on-surface-variant); font-weight: 600;">Validación de EPS</span>
+                <span style="font-size: 10px; padding: 2px 8px; border-radius: 9999px; font-weight: 600; background: ${badgeBg}; color: ${badgeColor};">${badgeLabel}</span>
+              </div>
+              <div class="flex items-center justify-between p-2.5 rounded-lg" style="background: var(--color-surface); border: 1px solid var(--color-outline-variant);">
+                <div class="flex-1">
+                  <span style="font-size: 10px; color: var(--color-on-surface-variant); display: block;">Formulario</span>
+                  <strong style="font-size: 12px; color: ${textColor};">${eps}</strong>
+                </div>
+                <span class="material-symbols-outlined" style="font-size: 16px; color: var(--color-outline); margin: 0 8px;">arrow_forward</span>
+                <div class="flex-1 text-right">
+                  <span style="font-size: 10px; color: var(--color-on-surface-variant); display: block;">ADRES (BDUA)</span>
+                  <strong style="font-size: 12px; color: ${textColor};">${af.entidad}</strong>
+                </div>
+              </div>
+              ${!epsIgual ? `<p style="font-size: 11px; color: var(--color-error); margin-top: 8px; display: flex; align-items: center; gap: 4px;"><span class="material-symbols-outlined" style="font-size: 14px;">warning</span> La EPS del formulario no coincide con la reportada por ADRES. Posible irregularidad.</p>` : ''}
+              ${epsIgual && eps !== af.entidad ? `<p style="font-size: 10px; color: var(--color-on-surface-variant); margin-top: 6px; opacity: 0.7;">💡 Los nombres coinciden después de normalizar (diferencias de formato).</p>` : ''}
+            </div>`
+          })() : ""}
         </div>`;
       adresDiv.classList.remove("hidden");
     } else if (adresResp && (adresResp.fuente === "adres_no_disponible" || adresResp.fuente === "adres_sin_datos")) {
@@ -555,50 +779,46 @@ async function verificarPaciente(event) {
       localDiv.classList.remove("hidden");
     }
 
-    document.getElementById("loadingMsg").textContent = "Analizando prefactura con IA...";
-
-    // 3. SUBIR PREFACTURA Y ANALIZAR
-    const formData = new FormData();
-    formData.append("file", fileInput.files[0]);
-    formData.append("tipo_doc", tipoDoc);
-    formData.append("num_doc", numDoc);
-    formData.append("eps", eps);
-    formData.append("id_atencion", "");
-    formData.append("modelo_selector", modeloSeleccionado);
+    // ── Verificar si hay discrepancia en ADRES que requiera confirmación ──
+    const nombresCompletoForm = `${nombres} ${apellidos}`.trim().toUpperCase();
+    const d = adresResp?.data || {};
+    const af = d.estado_afiliacion || {};
+    const nombresCompletoAdres = `${d.nombres || ''} ${d.apellidos || ''}`.trim().toUpperCase();
+    const epsFormNorm = normalizarEPS(eps);
+    const epsAdresNorm = normalizarEPS(af.entidad_normalizada || af.entidad);
     
-    // Pasar SIEMPRE el resultado de ADRES si existe (encontrado, sin datos o
-    // no disponible): el backend sabe interpretar los tres casos y así se
-    // evita repetir el scraping de ADRES en el mismo submit.
-    if (adresResp && adresResp.fuente) {
-      formData.append("adres_result", JSON.stringify(adresResp));
-    }
+    const epsNoCoincide = epsFormNorm && epsAdresNorm && epsFormNorm !== epsAdresNorm;
+    const nombresNoCoinciden = nombresCompletoForm && nombresCompletoAdres && 
+      nombresCompletoForm !== nombresCompletoAdres &&
+      !nombresCompletoAdres.includes(nombresCompletoForm) &&
+      !nombresCompletoForm.includes(nombresCompletoAdres);    const regimenFormNorm = (tipo_afiliacion || '').toUpperCase().trim();
+    const regimenAdresNorm = (af.regimen || '').toUpperCase().trim();
+    const regimenNoCoincide = regimenFormNorm && regimenAdresNorm && regimenFormNorm !== regimenAdresNorm;
+    const hayDiscrepanciaAdres = adresResp && adresResp.fuente === "adres_bdua" && 
+(epsNoCoincide || nombresNoCoinciden || regimenNoCoincide);
 
-    let pfResult = null;
-    try {
-      const pfResp = await fetch(`${API}/prefactura/analizar`, {
-        method: "POST",
-        body: formData,
+    if (hayDiscrepanciaAdres) {
+      // Mostrar modal de confirmación en lugar de continuar automáticamente
+      showLoading(false);
+      mostrarModalConfirmacion({
+        tipoDoc, numDoc, nombres, apellidos, eps, tipo_afiliacion,
+        modeloSeleccionado, fileInput, adresResp,
+        epsForm: eps,
+        epsAdres: af.entidad || '',
+        regimenForm: tipo_afiliacion,
+        regimenAdres: af.regimen || '',
+        regimenNoCoincide,
+        nombresForm: nombresCompletoForm,
+        nombresAdres: nombresCompletoAdres,
+        nombresNoCoinciden,
       });
-      if (!pfResp.ok) {
-        const errText = await pfResp.text();
-        throw new Error(`Servidor respondió ${pfResp.status}: ${errText}`);
-      }
-      pfResult = await pfResp.json();
-    } catch(fetchErr) {
-      console.error("Error en análisis de prefactura:", fetchErr);
-      showToast("Error al analizar la prefactura: " + fetchErr.message + "\nVerifique que el servidor esté iniciado.", "error");
-      showLoading(false);
       return;
     }
 
-    if (pfResult && pfResult.error) {
-      showToast("Error analizando prefactura: " + pfResult.error, "error");
-      showLoading(false);
-      return;
-    }
-
-    ultimoResultadoPF = pfResult;
-    mostrarResultadoPF(pfResult);
+    // ── Sin discrepancias: proceder directamente con el análisis ──
+    await ejecutarAnalisis({
+      fileInput, tipoDoc, numDoc, eps, nombres, apellidos, modeloSeleccionado, adresResp
+    });
 
   } catch(e) {
     showToast("Error: " + e.message, "error");
@@ -834,6 +1054,32 @@ function mostrarResultadoPF(data) {
                     '<span class="material-symbols-outlined text-xs" style="color: var(--color-error);">cancel</span>'}
                 </div>
               </div>
+              ${data.verificaciones.eps_adres && data.verificaciones.eps_adres.verificado ? (function() {
+                const epsIgual = data.verificaciones.eps_adres.coincide;
+                const epsForm = data.verificaciones.eps_adres.formulario || '';
+                const epsAdres = data.verificaciones.eps_adres.adres || '';
+                return `
+                <div class="flex justify-between items-center p-3 rounded-lg" style="background: ${epsIgual ? 'rgba(46,125,50,0.05)' : 'rgba(186,26,26,0.08)'}; border: 1px solid ${epsIgual ? 'rgba(46,125,50,0.2)' : 'rgba(186,26,26,0.3)'};">
+                  <span style="font-size: 11px; color: var(--color-on-surface-variant);">EPS (Form. vs ADRES)</span>
+                  <div class="flex items-center gap-2">
+                    <span class="text-xs font-semibold" style="color: ${epsIgual ? 'var(--color-success)' : 'var(--color-error)'};">${epsIgual ? 'COINCIDE' : 'NO COINCIDE'}</span>
+                    <span class="material-symbols-outlined text-xs" style="color: ${epsIgual ? 'var(--color-success)' : 'var(--color-error)'};">${epsIgual ? 'check_circle' : 'cancel'}</span>
+                  </div>
+                </div>
+                ${!epsIgual ? `
+                <div class="flex items-center gap-2 p-3 rounded-lg" style="background: rgba(186,26,26,0.06); border: 1px solid rgba(186,26,26,0.2);">
+                  <span class="material-symbols-outlined text-sm" style="color: var(--color-error);">error</span>
+                  <div>
+                    <span style="font-size: 11px; font-weight: 600; color: var(--color-error); display: block;">EPS no coincide con ADRES</span>
+                    <div class="flex items-center gap-3 mt-1" style="font-size: 10px; color: var(--color-on-surface-variant);">
+                      <span><strong>Formulario:</strong> ${epsForm}</span>
+                      <span class="material-symbols-outlined" style="font-size: 12px;">arrow_forward</span>
+                      <span><strong>ADRES:</strong> ${epsAdres || 'No disponible'}</span>
+                    </div>
+                    <span style="font-size: 10px; color: var(--color-error); display: block; margin-top: 2px;">Posible irregularidad. Verifique los datos del afiliado.</span>
+                  </div>
+                </div>` : ''}
+              `})() : ''}
               <div class="flex justify-between items-center p-3 rounded-lg" style="background: rgba(0,110,37,0.05); border: 1px solid rgba(0,110,37,0.1);">
                 <span style="font-size: 11px; color: var(--color-on-surface-variant);">Lógica Set CUPS</span>
                 <div class="flex items-center gap-2">
@@ -871,7 +1117,11 @@ function mostrarResultadoPF(data) {
               </div>
               <div class="flex justify-between items-center p-2.5" style="background: var(--color-background); border-radius: 8px;"><span style="font-size: 11px; color: var(--color-on-surface-variant);">Tipo Doc</span><span class="text-xs font-semibold">${fd.tipoDoc || "—"}</span></div>
               <div class="flex justify-between items-center p-2.5" style="background: var(--color-background); border-radius: 8px;"><span style="font-size: 11px; color: var(--color-on-surface-variant);">Número Doc</span><span class="text-xs font-semibold">${fd.numDoc || "—"}</span></div>
-              <div class="flex justify-between items-center p-2.5" style="background: var(--color-background); border-radius: 8px;"><span style="font-size: 11px; color: var(--color-on-surface-variant);">EPS</span><span class="text-xs font-semibold">${fd.eps || "—"}</span></div>
+              ${data.verificaciones?.cruce_adres ? (function() {
+                const campoEps = (data.verificaciones.cruce_adres.campos || []).find(c => c.campo === 'eps');
+                if (!campoEps) return '';
+                return badgeCompare(campoEps.formulario || fd.eps, campoEps.adres, "EPS", true);
+              })() : `<div class="flex justify-between items-center p-2.5" style="background: var(--color-background); border-radius: 8px;"><span style="font-size: 11px; color: var(--color-on-surface-variant);">EPS</span><span class="text-xs font-semibold">${fd.eps || "—"}</span></div>`}
             `}
           </div>
           
@@ -1307,11 +1557,20 @@ function mostrarSoporte(section) {
         <h3 class="font-headline" style="color: var(--color-primary);">Políticas de Privacidad</h3>
       </div>
       <div class="space-y-4 text-sm" style="color: var(--color-on-surface-variant);">
-        <p>En <strong>Health & Life IPS</strong> protegemos los datos personales de nuestros pacientes conforme a la Ley 1581 de 2012 y el Decreto 1377 de 2013.</p>
+        <p>En <strong>Health & Life IPS</strong> protegemos los datos personales de nuestros pacientes conforme a la <strong>Ley 1581 de 2012</strong> (Protección de Datos Personales), el <strong>Decreto 1377 de 2013</strong> y los lineamientos de <strong>ISO/IEC 27001:2022</strong> (Seguridad de la Información).</p>
         <p><strong>Datos recopilados:</strong> Identificación, datos de salud con fines de auditoría médica, historias clínicas y facturación.</p>
         <p><strong>Finalidad:</strong> Verificación de prefacturas, control de calidad, auditoría médica y cumplimiento normativo.</p>
-        <p><strong>Derechos:</strong> Acceder, actualizar, rectificar y solicitar la eliminación de sus datos personales contactando a nuestro departamento de datos.</p>
-        <p style="font-size: 11px; margin-top: 16px;">Para más información, contáctenos en protecciondatos@hlsite.com.co</p>
+        <p><strong>Derechos ARCO:</strong> Acceder, Rectificar, Cancelar y Oponerse al tratamiento de sus datos. Escríbanos a <strong>protecciondatos@hlsite.com.co</strong> para ejercer sus derechos (respuesta en 15 días hábiles).</p>
+        <div style="margin-top: 16px; padding: 14px; background: var(--color-surface-container); border-radius: 10px; border: 1px solid var(--color-outline-variant);">
+          <p style="font-size: 12px; font-weight: 600; margin-bottom: 8px; color: var(--color-primary);">📄 Documentos de cumplimiento normativo</p>
+          <ul style="font-size: 11px; color: var(--color-on-surface-variant); line-height: 1.8;">
+            <li>🔒 <strong>Política de Seguridad</strong> — docs/POLITICA_SEGURIDAD.md</li>
+            <li>📋 <strong>Aviso de Privacidad</strong> — docs/AVISO_PRIVACIDAD.md</li>
+            <li>📊 <strong>Análisis de Riesgos</strong> (ISO 27005) — docs/ANALISIS_RIESGOS.md</li>
+            <li>🗄️ <strong>Política de Retención</strong> — docs/POLITICA_RETENCION.md</li>
+            <li>📦 <strong>Inventario de Activos</strong> — docs/INVENTARIO_ACTIVOS.csv</li>
+          </ul>
+        </div>
       </div>
       <button onclick="cerrarSoporte()" class="mt-8 w-full py-3 rounded-xl font-label" style="background: var(--color-primary); color: var(--color-on-primary);">Cerrar</button>`;
   } else if (section === "terminos") {
@@ -1326,6 +1585,8 @@ function mostrarSoporte(section) {
         <p>2. Los datos ingresados deben ser veraces y corresponder a atenciones reales de la IPS.</p>
         <p>3. El uso indebido del sistema puede resultar en la suspensión del acceso.</p>
         <p>4. Health & Life IPS no se hace responsable por decisiones tomadas basadas exclusivamente en la salida del modelo de IA sin supervisión clínica.</p>
+        <p>5. El sistema cumple con la <strong>Ley 1581 de 2012</strong> (Protección de Datos) y sigue los lineamientos de <strong>ISO/IEC 27001:2022</strong> (Seguridad de la Información).</p>
+        <p>6. Los datos cargados se procesan exclusivamente para la auditoría y no se almacenan permanentemente sin consentimiento explícito.</p>
       </div>
       <button onclick="cerrarSoporte()" class="mt-8 w-full py-3 rounded-xl font-label" style="background: var(--color-primary); color: var(--color-on-primary);">Cerrar</button>`;
   } else {

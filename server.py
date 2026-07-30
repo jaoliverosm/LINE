@@ -11,7 +11,7 @@ Backend FastAPI para LINE - Auditor Medico Digital.
 Ejecutar: uvicorn server:app --host 0.0.0.0 --port 8000
 """
 from __future__ import annotations
-import sys, json, sqlite3, time, warnings, io, os as _os
+import sys, json, sqlite3, time, warnings, io, os as _os, logging
 from pathlib import Path
 from typing import Optional
 
@@ -26,7 +26,7 @@ try:
     PDF_SUPPORT = True
 except ImportError:
     PDF_SUPPORT = False
-    print("[WARN] pypdf no instalado. No se podrán procesar PDFs.")
+    logger.warning("pypdf no instalado. No se podrán procesar PDFs.")
 
 BASE = Path(__file__).resolve().parent
 sys.path.insert(0, str(BASE))
@@ -84,8 +84,37 @@ NVIDIA_MODEL = _os.environ.get("NVIDIA_MODEL", "nvidia/nemotron-3-nano-30b-a3b")
 HC_DETALLE_PATH = BASE / "data" / "03_historia_clinica_detalle.csv"
 PF_ORIGINAL_PATH = BASE / "data" / "04_prefactura.csv"
 
+# ── Logging estructurado (ISO 27001 A.8.15) ────────────────────────
+log_level = _os.environ.get("LOG_LEVEL", "INFO").upper()
+logging.basicConfig(
+    level=getattr(logging, log_level, logging.INFO),
+    format="%(asctime)s | %(levelname)-8s | %(name)s | %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
+logger = logging.getLogger("line-server")
+
 app = FastAPI(title="LINE - Auditor Medico Digital", version="2.0")
-app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+
+# ── CORS restringido (ISO 27001 A.8.21) ───────────────────────────
+CORS_ORIGINS = _os.environ.get("CORS_ORIGINS", "*")  # "*" por defecto para desarrollo
+if CORS_ORIGINS == "*":
+    origins = ["*"]
+else:
+    origins = [o.strip() for o in CORS_ORIGINS.split(",")]
+app.add_middleware(CORSMiddleware, allow_origins=origins, allow_methods=["*"], allow_headers=["*"])
+
+# ── Security Headers Middleware (ISO 27001 A.8.21) ─────────────────
+@app.middleware("http")
+async def add_security_headers(request, call_next):
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    response.headers["Content-Security-Policy"] = "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' http://127.0.0.1:8000; frame-ancestors 'none'"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+    return response
 
 # ── Estado del servidor ────────────────────────────────────────────
 modelo = None
@@ -104,17 +133,17 @@ def startup():
         from tensorflow import keras
         modelo = keras.models.load_model(str(MODEL_PATH), compile=False)
         modelo_cargado = True
-        print("[OK] Modelo auditor_medico_cnn.keras cargado")
+        logger.info("Modelo auditor_medico_cnn.keras cargado")
     except Exception as e:
         modelo_cargado = False
-        print(f"[WARN] Modelo CNN NO cargado: {e}")
+        logger.warning(f"Modelo CNN NO cargado: {e}")
 
     # 2. Cargar artefactos de preprocesamiento
     try:
         _ = cargar_artefactos()
-        print("[OK] Artefactos preprocesamiento cargados")
+        logger.info("Artefactos preprocesamiento cargados")
     except Exception as e:
-        print(f"[WARN] Artefactos NO cargados: {e}")
+        logger.warning(f"Artefactos NO cargados: {e}")
 
     # 2b. Cargar modelo XGBoost
     global xgboost_cargado
@@ -122,36 +151,36 @@ def startup():
         try:
             cargar_modelo_xgboost()
             xgboost_cargado = True
-            print("[OK] Modelo XGBoost cargado")
+            logger.info("Modelo XGBoost cargado")
         except Exception as e:
             xgboost_cargado = False
-            print(f"[WARN] Modelo XGBoost NO cargado: {e}")
+            logger.warning(f"Modelo XGBoost NO cargado: {e}")
     else:
         xgboost_cargado = False
-        print("[INFO] Modelo XGBoost no encontrado (ejecute 01_entrenamiento_xgboost.py primero)")
+        logger.info("Modelo XGBoost no encontrado (ejecute 01_entrenamiento_xgboost.py primero)")
 
     # 3. Cargar HC detalle (historia clinica) desde CSV original
     try:
         if HC_DETALLE_PATH.exists():
             hc_detalle_df = pd.read_csv(str(HC_DETALLE_PATH))
-            print(f"[OK] HC detalle cargado: {len(hc_detalle_df)} registros desde {HC_DETALLE_PATH}")
+            logger.info(f"HC detalle cargado: {len(hc_detalle_df)} registros")
         else:
-            print(f"[WARN] HC detalle no encontrado en {HC_DETALLE_PATH}. Usando BD local.")
+            logger.warning(f"HC detalle no encontrado en {HC_DETALLE_PATH}. Usando BD local.")
             # Fallback: intentar cargar desde linea.db si existe tabla
             try:
                 rows = _query("SELECT * FROM historia_clinica_detalle LIMIT 1")
                 if rows:
                     all_rows = _query("SELECT * FROM historia_clinica_detalle")
                     hc_detalle_df = pd.DataFrame(all_rows)
-                    print(f"[OK] HC detalle cargado desde BD: {len(hc_detalle_df)} registros")
+                    logger.info(f"HC detalle cargado desde BD: {len(hc_detalle_df)} registros")
                 else:
                     hc_detalle_df = pd.DataFrame()
             except Exception:
                 hc_detalle_df = pd.DataFrame()
-                print("[WARN] HC detalle no disponible. El analisis de prefactura usara solo reglas.")
+                logger.warning("HC detalle no disponible. El analisis de prefactura usara solo reglas.")
     except Exception as e:
         hc_detalle_df = pd.DataFrame()
-        print(f"[WARN] Error cargando HC detalle: {e}")
+        logger.warning(f"Error cargando HC detalle: {e}")
 
 
 # ── Helpers SQLite ─────────────────────────────────────────────────
@@ -236,6 +265,201 @@ def _normalizar_documento(doc: str) -> str:
     if not doc:
         return ""
     return ''.join(filter(str.isdigit, doc.strip()))
+
+
+def _normalizar_texto(s: str) -> str:
+    """
+    Normaliza texto para comparaciones flexibles:
+    mayusculas, sin tildes, sin espacios multiples.
+    """
+    import unicodedata
+    if not s:
+        return ""
+    s = s.upper().strip()
+    s = unicodedata.normalize('NFKD', s).encode('ASCII', 'ignore').decode('ASCII')
+    s = ' '.join(s.split())
+    return s
+
+
+def _extraer_datos_adres(adres_data: dict) -> dict:
+    """
+    Extrae campos relevantes de ADRES sin importar la estructura
+    (data anidada o campos planos).
+    """
+    result = {"nombres": "", "apellidos": "", "eps": "", "regimen": ""}
+    if not adres_data:
+        return result
+    if "data" in adres_data and adres_data["data"]:
+        d = adres_data["data"]
+        result["nombres"] = _s(d.get("nombres", ""))
+        result["apellidos"] = _s(d.get("apellidos", ""))
+        estado = d.get("estado_afiliacion", {}) or {}
+        result["eps"] = _s(estado.get("entidad_normalizada", "") or estado.get("entidad", ""))
+        result["regimen"] = _s(estado.get("regimen", ""))
+    else:
+        result["nombres"] = _s(adres_data.get("nombres", ""))
+        result["apellidos"] = _s(adres_data.get("apellidos", ""))
+        result["eps"] = _s(adres_data.get("eps", ""))
+        result["regimen"] = _s(adres_data.get("regimen", ""))
+    return result
+
+
+def _validar_cruce_adres(adres_data: dict, form_data: dict) -> dict:
+    """
+    Cruza los datos del formulario contra los datos reales de ADRES/BDUA.
+    Compara: nombres, apellidos, EPS, regimen con flexibilidad.
+
+    Args:
+        adres_data: Respuesta del scraper ADRES
+        form_data: Dict con nombres, apellidos, eps, tipo_afiliacion del formulario
+
+    Returns:
+        dict con:
+          - campos: lista de {campo, formulario, adres, coincide, detalle}
+          - n_discrepancias: conteo
+          - validacion_pasa: bool (True = sin discrepancias graves)
+          - conclusion: texto resumen
+    """
+    adres = _extraer_datos_adres(adres_data)
+    if not adres["nombres"] and not adres["apellidos"]:
+        return {
+            "campos": [],
+            "n_discrepancias": 0,
+            "discrepancias_graves": 0,
+            "validacion_pasa": True,
+            "conclusion": "ADRES no devolvió datos personales para cruzar. No se puede validar.",
+        }
+
+    nombre_form = _s(form_data.get("nombres", ""))
+    apellido_form = _s(form_data.get("apellidos", ""))
+    eps_form = _s(form_data.get("eps", ""))
+    regimen_form = _s(form_data.get("tipo_afiliacion", ""))
+
+    campos = []
+    discrepancias_graves = 0
+    discrepancias_leves = 0
+
+    # ── 1. Validar nombres completos ──
+    completo_form = _normalizar_texto(f"{nombre_form} {apellido_form}")
+    completo_adres = _normalizar_texto(f"{adres['nombres']} {adres['apellidos']}")
+
+    nombres_coinciden = False
+    detalle_nombres = ""
+    if completo_form and completo_adres:
+        if completo_form == completo_adres:
+            nombres_coinciden = True
+            detalle_nombres = "Coincidencia exacta"
+        else:
+            # Comparación flexible: primer nombre + primer apellido
+            partes_f = completo_form.split()
+            partes_a = completo_adres.split()
+            pn_f = partes_f[0] if partes_f else ""
+            pa_f = partes_f[-1] if len(partes_f) > 1 else ""
+            pn_a = partes_a[0] if partes_a else ""
+            pa_a = partes_a[-1] if len(partes_a) > 1 else ""
+
+            if pn_f == pn_a and pa_f == pa_a:
+                nombres_coinciden = True
+                detalle_nombres = f"Coincidencia parcial (primer nombre '{pn_f}' y apellido '{pa_f}' coinciden)"
+            elif completo_form in completo_adres or completo_adres in completo_form:
+                nombres_coinciden = True
+                detalle_nombres = "Coincidencia parcial (un nombre contiene al otro)"
+            else:
+                detalle_nombres = f"NO coinciden: Form='{completo_form}' vs ADRES='{completo_adres}'"
+    else:
+        detalle_nombres = "Faltan datos del formulario o ADRES para comparar nombres"
+        nombres_coinciden = True  # No se puede determinar, no penalizar
+
+    if not nombres_coinciden:
+        discrepancias_graves += 1
+
+    campos.append({
+        "campo": "nombres_completos",
+        "formulario": f"{nombre_form} {apellido_form}",
+        "adres": f"{adres['nombres']} {adres['apellidos']}",
+        "coincide": nombres_coinciden,
+        "detalle": detalle_nombres,
+    })
+
+    # ── 2. Validar EPS ──
+    eps_form_norm = _normalizar_eps(eps_form)
+    eps_adres_norm = _normalizar_eps(adres["eps"])
+
+    eps_coincide = False
+    detalle_eps = ""
+    if eps_form_norm and eps_adres_norm:
+        if eps_form_norm == eps_adres_norm:
+            eps_coincide = True
+            detalle_eps = "Coincidencia exacta"
+        elif eps_form_norm in eps_adres_norm or eps_adres_norm in eps_form_norm:
+            eps_coincide = True
+            detalle_eps = f"Coincidencia parcial ('{eps_form_norm}' ≈ '{eps_adres_norm}')"
+        else:
+            detalle_eps = f"NO coinciden: Form='{eps_form_norm}' vs ADRES='{eps_adres_norm}'"
+    else:
+        detalle_eps = "Faltan datos de EPS para comparar"
+        eps_coincide = True
+
+    if not eps_coincide:
+        discrepancias_leves += 1
+
+    campos.append({
+        "campo": "eps",
+        "formulario": eps_form,
+        "adres": adres["eps"],
+        "coincide": eps_coincide,
+        "detalle": detalle_eps,
+    })
+
+    # ── 3. Validar regimen ──
+    regimen_form_norm = _normalizar_texto(regimen_form)
+    regimen_adres_norm = _normalizar_texto(adres["regimen"])
+
+    regimen_coincide = False
+    detalle_regimen = ""
+    if regimen_form_norm and regimen_adres_norm:
+        if regimen_form_norm == regimen_adres_norm:
+            regimen_coincide = True
+            detalle_regimen = "Coincidencia exacta"
+        elif regimen_form_norm in regimen_adres_norm or regimen_adres_norm in regimen_form_norm:
+            regimen_coincide = True
+            detalle_regimen = f"Coincidencia parcial"
+        else:
+            detalle_regimen = f"NO coinciden: Form='{regimen_form_norm}' vs ADRES='{regimen_adres_norm}'"
+    else:
+        detalle_regimen = "Faltan datos de regimen para comparar"
+        regimen_coincide = True
+
+    if not regimen_coincide:
+        discrepancias_leves += 1
+
+    campos.append({
+        "campo": "regimen",
+        "formulario": regimen_form,
+        "adres": adres["regimen"],
+        "coincide": regimen_coincide,
+        "detalle": detalle_regimen,
+    })
+
+    # ── Conclusion ──
+    n_discrepancias = discrepancias_graves + discrepancias_leves
+    if discrepancias_graves > 0:
+        validacion_pasa = False
+        conclusion = f"DATOS NO COINCIDEN: {discrepancias_graves} discrepancia(s) grave(s) en nombres. Posible suplantación."
+    elif discrepancias_leves > 0:
+        validacion_pasa = True
+        conclusion = f"DISCREPANCIAS MENORES: {discrepancias_leves} campo(s) no coinciden (EPS o régimen). Se procede con advertencia."
+    else:
+        validacion_pasa = True
+        conclusion = "TODO COINCIDE: Datos del formulario validados contra ADRES."
+
+    return {
+        "campos": campos,
+        "n_discrepancias": n_discrepancias,
+        "discrepancias_graves": discrepancias_graves,
+        "validacion_pasa": validacion_pasa,
+        "conclusion": conclusion,
+    }
 
 
 # ── Endpoints ──────────────────────────────────────────────────────
@@ -644,6 +868,9 @@ async def analizar_prefactura(
     tipo_doc: str = Form("CC"),
     num_doc: str = Form(""),
     eps: str = Form(""),
+    nombres: str = Form(""),
+    apellidos: str = Form(""),
+    tipo_afiliacion: str = Form(""),
     id_atencion: str = Form(""),
     modelo_selector: str = Form("ambos"),
     adres_result: str = Form(None),
@@ -761,7 +988,7 @@ async def analizar_prefactura(
     if final_num_doc:
         # Normalizar documento para busqueda
         doc_normalizado = _normalizar_documento(final_num_doc)
-        print(f"[DEBUG VALIDACIÓN] Buscando paciente con documento: {final_num_doc} (normalizado: {doc_normalizado})")
+        logger.debug(f"Buscando paciente con documento: {doc_normalizado}")
         
         # Buscar por id_paciente (que es el número de documento en esta BD)
         pac_rows = _query(
@@ -770,9 +997,9 @@ async def analizar_prefactura(
         )
         if pac_rows:
             paciente_info = pac_rows[0]
-            print(f"[DEBUG VALIDACIÓN] Paciente encontrado: {paciente_info}")
+            logger.info(f"Paciente encontrado en BD local: {paciente_info['id_paciente']}")
         else:
-            print(f"[DEBUG VALIDACIÓN] Paciente NO encontrado con documento exacto")
+            logger.info(f"Paciente NO encontrado en BD local: {final_num_doc}")
     
     # 5. Obtener atencion y diagnostico
     atencion_id = id_atencion or (pf_items[0]["id_atencion"] if pf_items else "")
@@ -802,44 +1029,42 @@ async def analizar_prefactura(
     # ── PASO 1: Verificar ADRES (obligatorio) ──
     adres_error_tecnico = False  # Para distinguir error técnico vs datos incorrectos
     
-    print(f"[DEBUG VALIDACIÓN] Datos ADRES proporcionados: {bool(adres_data)}")
-    if adres_data:
-        print(f"[DEBUG VALIDACIÓN] Datos ADRES: {adres_data}")
+    logger.debug(f"Datos ADRES proporcionados: {bool(adres_data)}")
     
     if not adres_data:
         # Si no se proporcionó resultado ADRES, consultar automáticamente
-        print(f"[DEBUG VALIDACIÓN] Consultando ADRES automáticamente...")
+        logger.info("Consultando ADRES automáticamente...")
         from backend.adres_scraper import consultar_afiliacion
         try:
             adres_data = consultar_afiliacion(final_tipo_doc, final_num_doc)
             verificaciones["adres"]["verificado"] = True
             verificaciones["adres"]["encontrado"] = adres_data.get("encontrado", False)
-            print(f"[DEBUG VALIDACIÓN] Resultado ADRES: {adres_data}")
+            logger.debug(f"Resultado ADRES fuente: {adres_data.get('fuente')}")
             
             # Distinguir entre error técnico y datos no encontrados
             if adres_data.get("fuente") == "adres_no_disponible" or adres_data.get("error") in ["BDUA_NO_DISPONIBLE", "CAPTCHA_REQUERIDO", "ESTRUCTURA_NO_RECONOCIDA"]:
                 adres_error_tecnico = True
                 verificaciones["adres"]["indicador"] = "⚠️"
                 verificaciones["adres"]["mensaje"] = f"ADRES no disponible (error técnico). {adres_data.get('mensaje', 'Modo contingencia activado.')}"
-                print(f"[DEBUG VALIDACIÓN] ADRES error técnico: {adres_error_tecnico}")
+                logger.warning(f"ADRES error técnico: {adres_data.get('error')}")
             elif adres_data.get("encontrado"):
                 verificaciones["adres"]["indicador"] = "✅"
                 verificaciones["adres"]["mensaje"] = f"Paciente encontrado en ADRES: {adres_data.get('nombres', '')} {adres_data.get('apellidos', '')} - EPS: {adres_data.get('eps', '')}"
-                print(f"[DEBUG VALIDACIÓN] ADRES paciente encontrado")
+                logger.info(f"ADRES paciente encontrado")
             else:
                 verificaciones["adres"]["indicador"] = "❌"
                 verificaciones["adres"]["mensaje"] = f"Paciente NO encontrado en ADRES. {adres_data.get('mensaje', 'Verifique el número de documento.')}"
-                print(f"[DEBUG VALIDACIÓN] ADRES paciente NO encontrado")
+                logger.warning(f"ADRES paciente NO encontrado")
         except Exception as e:
             adres_error_tecnico = True
             verificaciones["adres"]["verificado"] = True
             verificaciones["adres"]["encontrado"] = False
             verificaciones["adres"]["indicador"] = "⚠️"
             verificaciones["adres"]["mensaje"] = f"Error técnico consultando ADRES: {str(e)}. Modo contingencia activado."
-            print(f"[DEBUG VALIDACIÓN] Excepción ADRES: {e}")
+            logger.error(f"Excepción ADRES: {e}")
     else:
         # Usar resultado ADRES proporcionado
-        print(f"[DEBUG VALIDACIÓN] Usando datos ADRES proporcionados")
+        logger.debug("Usando datos ADRES proporcionados")
         verificaciones["adres"]["verificado"] = True
         
         # Verificar estructura de datos ADRES (puede tener 'data' o campos directos)
@@ -848,36 +1073,39 @@ async def analizar_prefactura(
             verificaciones["adres"]["encontrado"] = False
             verificaciones["adres"]["indicador"] = "⚠️"
             verificaciones["adres"]["mensaje"] = f"ADRES no disponible (error técnico). {adres_data.get('mensaje', 'Modo contingencia activado.')}"
-            print(f"[DEBUG VALIDACIÓN] ADRES error técnico (datos proporcionados): {adres_error_tecnico}")
+            logger.warning(f"ADRES error técnico (datos proporcionados): {adres_error_tecnico}")
         elif "data" in adres_data and adres_data["data"]:
             # Estructura con 'data' (nuevo formato del scraper)
             data_content = adres_data["data"]
-            nombres = data_content.get("nombres", "")
-            apellidos = data_content.get("apellidos", "")
+            # NO sobrescribir nombres/apellidos del formulario con los de ADRES
+            # para que la validación compare correctamente los datos reales.
+            # Los nombres de ADRES solo se usan para mostrar info, no para validar.
+            adres_nombres = data_content.get("nombres", "")
+            adres_apellidos = data_content.get("apellidos", "")
             estado_afiliacion = data_content.get("estado_afiliacion", {})
             eps = estado_afiliacion.get("entidad", "")
             
-            if nombres and apellidos:
+            if adres_nombres and adres_apellidos:
                 verificaciones["adres"]["encontrado"] = True
                 verificaciones["adres"]["indicador"] = "✅"
-                verificaciones["adres"]["mensaje"] = f"Paciente encontrado en ADRES: {nombres} {apellidos} - EPS: {eps}"
-                print(f"[DEBUG VALIDACIÓN] ADRES paciente encontrado (estructura data)")
+                verificaciones["adres"]["mensaje"] = f"Paciente encontrado en ADRES: {adres_nombres} {adres_apellidos} - EPS: {eps}"
+                logger.info("ADRES paciente encontrado (estructura data)")
             else:
                 verificaciones["adres"]["encontrado"] = False
                 verificaciones["adres"]["indicador"] = "❌"
                 verificaciones["adres"]["mensaje"] = f"Paciente NO encontrado en ADRES. Datos incompletos."
-                print(f"[DEBUG VALIDACIÓN] ADRES paciente NO encontrado (estructura data incompleta)")
+                logger.warning("ADRES paciente NO encontrado (estructura data incompleta)")
         elif adres_data.get("encontrado"):
             # Estructura antigua con campo 'encontrado' directo
             verificaciones["adres"]["encontrado"] = True
             verificaciones["adres"]["indicador"] = "✅"
             verificaciones["adres"]["mensaje"] = f"Paciente encontrado en ADRES: {adres_data.get('nombres', '')} {adres_data.get('apellidos', '')} - EPS: {adres_data.get('eps', '')}"
-            print(f"[DEBUG VALIDACIÓN] ADRES paciente encontrado (estructura antigua)")
+            logger.info("ADRES paciente encontrado (estructura antigua)")
         else:
             verificaciones["adres"]["encontrado"] = False
             verificaciones["adres"]["indicador"] = "❌"
             verificaciones["adres"]["mensaje"] = f"Paciente NO encontrado en ADRES. {adres_data.get('mensaje', 'Verifique el número de documento.')}"
-            print(f"[DEBUG VALIDACIÓN] ADRES paciente NO encontrado (datos proporcionados)")
+            logger.warning("ADRES paciente NO encontrado (datos proporcionados)")
     
     # ── PASO 2: Verificar BD Local (obligatorio) ──
     verificaciones["bd_local"]["verificado"] = True
@@ -891,52 +1119,95 @@ async def analizar_prefactura(
         verificaciones["bd_local"]["indicador"] = "❌"
         verificaciones["bd_local"]["mensaje"] = f"Paciente NO encontrado en base de datos de la clínica. Cédula: {final_num_doc}"
     
-    # Extraer EPS de ADRES si está disponible
-    eps_adres = None
-    if adres_data and adres_data.get("data"):
-        estado_afiliacion = (adres_data.get("data") or {}).get("estado_afiliacion", {}) or {}
-        eps_adres = estado_afiliacion.get("entidad_normalizada") or estado_afiliacion.get("entidad")
-    elif adres_data and "eps" in adres_data:
-        eps_adres = adres_data.get("eps")
-    
-    print(f"[DEBUG VALIDACIÓN] EPS de ADRES: {eps_adres}")
+    # ── PASO 2.5: Cruzar datos del formulario contra ADRES ──
+    validacion_adres = None
+    if adres_data and adres_data.get("encontrado", False) and not adres_error_tecnico:
+        validacion_adres = _validar_cruce_adres(
+            adres_data,
+            {
+                "nombres": nombres,
+                "apellidos": apellidos,
+                "eps": final_eps,
+                "tipo_afiliacion": tipo_afiliacion,
+            },
+        )
+        logger.info(f"Validación cruce ADRES: {validacion_adres['conclusion']}")
     
     # ── PASO 3: Decidir si proceder con IA ──
-    # Lógica: 
+    # Lógica actualizada con validacion cruzada ADRES:
     # - Si ADRES tiene error técnico → usar solo BD local (modo contingencia)
     # - Si ADRES responde pero paciente no encontrado → RECHAZAR
-    # - Si ADRES responde y paciente encontrado → verificar BD local
-    # - Si BD local no tiene paciente → RECHAZAR
+    # - Si ADRES responde, encontrado pero datos NO cruzan (nombre no coincide) → RECHAZAR
+    # - Si ADRES responde, encontrado, datos cruzan con discrepancias menores → REVISAR
+    # - Si ADRES responde, encontrado, datos cruzan OK + BD local → APROBAR
     
     if adres_error_tecnico:
-        # Modo contingencia: solo verificar BD local
-        print(f"[DEBUG VALIDACIÓN] Modo contingencia (ADRES error técnico)")
+        logger.warning("Modo contingencia (ADRES error técnico)")
         if not verificaciones["bd_local"]["encontrado"]:
             error_validacion = f"RECHAZO: Paciente no encontrado en base de datos local. ADRES no disponible para validación externa. {verificaciones['bd_local']['mensaje']}"
             puede_proceder_ia = False
-            print(f"[DEBUG VALIDACIÓN] RECHAZO: Paciente no en BD local")
         else:
-            # Paciente en BD local, ADRES no disponible → proceder con advertencia
             error_validacion = f"ADVERTENCIA: ADRES no disponible. Validación realizada solo con base de datos local."
             puede_proceder_ia = True
-            print(f"[DEBUG VALIDACIÓN] APROBAR: Paciente en BD local, ADRES no disponible")
     elif not verificaciones["adres"]["encontrado"]:
-        # ADRES responde pero paciente no encontrado → RECHAZO definitivo
         error_validacion = f"RECHAZO: Paciente no encontrado en ADRES. {verificaciones['adres']['mensaje']}"
         puede_proceder_ia = False
-        print(f"[DEBUG VALIDACIÓN] RECHAZO: Paciente no en ADRES")
-    elif not verificaciones["bd_local"]["encontrado"]:
-        # ADRES confirma paciente pero BD local no lo tiene → RECHAZO
-        error_validacion = f"RECHAZO: Paciente encontrado en ADRES pero NO atendido en esta clínica. {verificaciones['bd_local']['mensaje']}"
+    elif validacion_adres and not validacion_adres["validacion_pasa"]:
+        # ADRES encontró el documento pero los nombres NO coinciden → posible suplantación
+        error_validacion = f"RECHAZO: {validacion_adres['conclusion']}"
         puede_proceder_ia = False
-        print(f"[DEBUG VALIDACIÓN] RECHAZO: Paciente en ADRES pero no en BD local")
+    elif not verificaciones["bd_local"]["encontrado"]:
+        if validacion_adres and validacion_adres["n_discrepancias"] > 0:
+            error_validacion = f"REVISAR: {validacion_adres['conclusion']}. Además paciente no encontrado en BD local."
+            puede_proceder_ia = True  # REVISAR permite proceder pero con advertencia
+        else:
+            error_validacion = f"RECHAZO: Paciente encontrado en ADRES pero NO atendido en esta clínica. {verificaciones['bd_local']['mensaje']}"
+            puede_proceder_ia = False
     else:
-        # Ambas verificaciones pasan → proceder con IA
-        puede_proceder_ia = True
-        print(f"[DEBUG VALIDACIÓN] APROBAR: Ambas verificaciones pasan")
+        if validacion_adres and validacion_adres["n_discrepancias"] > 0:
+            error_validacion = f"REVISAR: {validacion_adres['conclusion']}"
+            puede_proceder_ia = True  # REVISAR = proceder pero cambiar badge
+        else:
+            puede_proceder_ia = True
     
-    print(f"[DEBUG VALIDACIÓN] Resultado final - puede_proceder_ia: {puede_proceder_ia}")
-    print(f"[DEBUG VALIDACIÓN] Resultado final - error_validacion: {error_validacion}")
+    logger.info(f"Resultado validación - puede_proceder_ia: {puede_proceder_ia}, error: {error_validacion}")
+    
+    # ── PASO 2.75: Extraer comparación de EPS para mostrar en frontend ──
+    eps_formulario_val = final_eps
+    eps_adres_valor = ""
+    eps_verificado = False
+    eps_coincide = True
+    
+    if validacion_adres:
+        # Extraer el campo EPS del cruce ADRES
+        eps_campo = next((c for c in validacion_adres.get("campos", []) if c["campo"] == "eps"), None)
+        if eps_campo:
+            eps_coincide = eps_campo["coincide"]
+            eps_adres_valor = eps_campo["adres"]
+            eps_verificado = True
+    elif adres_data and adres_data.get("encontrado", False) and not adres_error_tecnico:
+        # Si no hay validación ADRES completa, intentar extraer EPS directamente
+        adres_extracted = _extraer_datos_adres(adres_data)
+        eps_adres_valor = adres_extracted.get("eps", "")
+        if eps_adres_valor:
+            # Sí se pudo extraer EPS de ADRES: marcar como verificado y comparar
+            eps_adres_norm = _normalizar_eps(eps_adres_valor)
+            eps_form_norm = _normalizar_eps(eps_formulario_val)
+            if eps_form_norm and eps_adres_norm:
+                eps_coincide = eps_form_norm == eps_adres_norm or eps_form_norm in eps_adres_norm or eps_adres_norm in eps_form_norm
+            eps_verificado = True
+        # Si no se pudo extraer EPS, eps_verificado queda False (no se puede afirmar nada)
+    
+    verificaciones["eps_adres"] = {
+        "verificado": eps_verificado,
+        "coincide": eps_coincide,
+        "formulario": eps_formulario_val,
+        "adres": eps_adres_valor,
+    }
+    
+    # Pasar validacion_adres a verificaciones
+    if validacion_adres:
+        verificaciones["cruce_adres"] = validacion_adres
     
     # ── CONTINUAR CON ANÁLISIS DE HC vs PF (solo si puede_proceder_ia = True) ──
     atencion_info = {}
@@ -1378,7 +1649,7 @@ async def analizar_prefactura(
             "id": paciente_info.get("id_paciente", ""),
             "tipo_documento": paciente_info.get("tipo_documento", tipo_doc),
             "eps": paciente_info.get("eps", ""),
-            "eps_adres": eps_adres,  # EPS de ADRES
+            "eps_adres": eps_adres_valor,  # EPS de ADRES
             "tipo_afiliacion": paciente_info.get("tipo_afiliacion", ""),
             "encontrado_db_local": bool(paciente_info),
         },
