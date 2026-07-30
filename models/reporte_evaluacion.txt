@@ -1,0 +1,45 @@
+XGBoost Report
+Dataset: 3126 registros
+Target: {0: 2477, 1: 649}
+Split: Train=2188 Test=938
+Features: 18 (10 num, 8 cat)
+Leakage: tipo_alerta,severidad,descripcion_alerta EXCLUIDOS
+es_fuga, tiene_hc, sin_prefactura EXCLUIDOS (leakage-adj)
+Top-10 diag: ['E119', 'H269', 'I10X', 'I219', 'J189', 'M545', 'N390', 'O800', 'R073', 'Z348']
+
+Hiperparams: {'learning_rate': 0.1, 'max_depth': 8, 'n_estimators': 200, 'scale_pos_weight': 3.8193832599118944}
+Threshold: 0.896
+Accuracy:  0.9264
+Precision: 0.9922
+Recall:    0.6513
+F1:        0.7864
+AUC-ROC:   0.8983
+CM: TN=742 FP=1 FN=68 TP=127
+TPR: 65.13%  TNR: 99.87%
+
+CV 5-fold:
+  auc: mean=0.8806 std=0.0105
+  f1: mean=0.7752 std=0.0197
+  recall: mean=0.6431 std=0.0272
+  precision: mean=0.9767 std=0.0079
+
+Train probs: mean=0.2225 Test probs: mean=0.2085
+
+Top-10 Gain:
+  1. coincide_codigo_cups: 0.6566
+  2. diferencia_cantidad: 0.2037
+  3. ratio_cantidad: 0.0153
+  4. eps_atencion: 0.0121
+  5. dias_diferencia: 0.0121
+  6. valor_unitario: 0.0121
+  7. sede: 0.0120
+  8. edad: 0.0117
+  9. diag_encoded: 0.0114
+  10. sexo: 0.0111
+
+Top-5 SHAP:
+  1. coincide_codigo_cups: 1.6765
+  2. edad: 0.8730
+  3. diag_encoded: 0.5404
+  4. dias_diferencia: 0.4526
+  5. diferencia_cantidad: 0.4018

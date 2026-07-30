@@ -17,7 +17,7 @@ Capstone SIC 2025 — Valida que los servicios facturados tengan soporte clínic
 
 ### Modelos de IA Actualizados
 - **XGBoost establecido como modelo en producción**: AUC-ROC 0.8983, Precision 99.22%
-- **CNN MobileNetV2**: Modelo de referencia (AUC-ROC 0.7487)
+- **CNN MobileNetV2**: Modelo de referencia (AUC-ROC ~0.67–0.70, ver reporte completo en `Capstone/outputs/reports/metrics.json`)
 - **NVIDIA Nemotron-3**: LLM con análisis clínico detallado y nuevas reglas
 
 ### Frontend Mejorado
@@ -160,8 +160,9 @@ Pipeline tabular → imagen:
 4. Mapeo a grid 32×32 vía t-SNE
 5. Normalización global min-max
 6. CNN MobileNetV2 → probabilidad de inconsistencia
-- **Métricas**: AUC-ROC 0.7487, F1 0.4710
-- **Nota**: Modelo no re-ejecutable en esta copia
+- **Métricas**: AUC-ROC 0.6727 (consolidado, umbral óptimo 0.4273) — Precisión 0.34, Recall 0.56, F1 0.43
+- **Nota**: El CNN no es determinista en CPU (corridas limpias sucesivas dieron 0.6727, 0.6984 y 0.7104). Rango recomendado: **~0.67–0.70**.
+- **Ubicación del reporte**: `Capstone/outputs/models/cnn/metrics_fase2.json` y `Capstone/outputs/reports/metrics.json`
 
 #### NVIDIA Nemotron-3 (Externo)
 LLM que recibe contexto clínico completo (diagnóstico, items PF, items HC, cruces) y genera análisis detallado con recomendación. Aplica todas las nuevas reglas de negocio v2.0.

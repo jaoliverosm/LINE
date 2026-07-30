@@ -433,9 +433,11 @@ Para problemas durante la migración, consulte:
 - Ubicación: `models/modelo_xgboost.pkl` y `models/artefactos_xgboost.pkl`
 
 **CNN MobileNetV2:**
-- Modelo no re-ejecutable en esta copia
-- Métricas reportadas: AUC-ROC 0.7487, F1 0.4710
-- Referencia: `04_NOTEBOOKS/02_modelo_cnn_transfer_learning.ipynb`
+- **Nota**: Re-ejecutado con kernel limpio (notebook 08, 29-jul-2026). El CNN no es determinista en CPU: corridas sucesivas dan 0.6727, 0.6984 y 0.7104.
+- **Métrica consolidada**: AUC-ROC **0.6727** (rango recomendado ~0.67–0.70)
+  - Threshold óptimo: 0.4273 | Precisión: 0.34 | Recall: 0.56 | F1: 0.43
+- **Cifra histórica**: 0.7487 (no reproducible con el notebook actual)
+- Referencia: `notebooks/08_modelo_cnn_transfer_learning.ipynb`
 
 **NVIDIA Nemotron-3:**
 - LLM externo para análisis clínico detallado
