@@ -344,7 +344,10 @@ Debería retornar:
   "status": "ok",
   "modelo_cargado": true,
   "xgboost_cargado": true,
-  "modo": "ia"
+  "modo": "ia",
+  "db_path": "./linea.db",
+  "n_filas_cruce": 3126,
+  "hc_detalle_disponible": true
 }
 ```
 
@@ -406,15 +409,15 @@ Para problemas durante la migración, consulte:
 
 3. **Soporte médico diario completo**
    - Valida que haya soporte médico documentado para cada día de atención
-   - Alerta: `SOPORTE_MEDICO_INSUFICIENTE`
+   - Alerta: `SIN_SOPORTE_MEDICO_DIARIO`
 
 4. **Detección de servicios de alto costo**
    - Identifica servicios de alto costo que requieren validación especial
-   - Alerta: `SERVICIO_ALTO_COSTO`
+   - Alerta: `SERVICIO_ALTO_COSTO_SIN_VALIDACION`
 
 5. **Validación temporal (días)**
    - Verifica la coherencia temporal entre atención y facturación
-   - Alerta: `TEMPORAL_DISCORDANTE`
+   - Alerta: `FACTURACION_TARDIA`
 
 6. **Detección mejorada de fugas de ingresos**
    - Identifica procedimientos realizados en HC pero no facturados

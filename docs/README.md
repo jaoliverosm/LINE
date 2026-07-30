@@ -12,7 +12,7 @@ Capstone SIC 2025 — Valida que los servicios facturados tengan soporte clínic
 
 ### Motor de Reglas v2.0
 - **Comparación por set de CUPS por atención**: Detección más precisa de inconsistencias
-- **6 nuevas alertas de negocio**: SIN_AUTORIZACION_EPS, SOPORTE_MEDICO_INSUFICIENTE, SERVICIO_ALTO_COSTO, TEMPORAL_DISCORDANTE
+- **6 nuevas alertas de negocio**: SIN_AUTORIZACION_EPS, SIN_SOPORTE_MEDICO_DIARIO, SERVICIO_ALTO_COSTO_SIN_VALIDACION, FACTURACION_TARDIA
 - **Detección mejorada de fugas de ingresos**: Identificación de procedimientos no facturados
 
 ### Modelos de IA Actualizados
@@ -123,9 +123,10 @@ Atención #12345
 | `CONSISTENTE` | Coinciden CUPS, cantidad y hay soporte | 🟢 NINGUNA |
 | `NO_FACTURADO` | Procedimiento en HC que no aparece en PF (fuga) | 🔴 ALTA |
 | `SIN_AUTORIZACION_EPS` | Servicio sin autorización de la EPS | 🔴 ALTA |
-| `SOPORTE_MEDICO_INSUFICIENTE` | Falta soporte médico documentado | 🟠 MEDIA |
-| `SERVICIO_ALTO_COSTO` | Servicio de alto costo sin validación especial | 🔴 ALTA |
-| `TEMPORAL_DISCORDANTE` | Incoherencia temporal atención-facturación | 🟠 MEDIA |
+| `SIN_SOPORTE_MEDICO_DIARIO` | Falta soporte médico diario documentado | 🟠 MEDIA |
+| `SERVICIO_ALTO_COSTO_SIN_VALIDACION` | Servicio de alto costo sin validación especial | 🔴 ALTA |
+| `FACTURACION_TARDIA` | Incoherencia temporal atención-facturación | 🟠 MEDIA |
+| `DIAGNOSTICO_NO_RELACIONADO` | Diagnóstico no relacionado con el procedimiento | 🟠 MEDIA |
 
 #### Ejemplo de validación completa:
 
@@ -169,9 +170,12 @@ LLM que recibe contexto clínico completo (diagnóstico, items PF, items HC, cru
 
 ### 5. Resultado
 - **Resumen**: total items, consistentes, inconsistentes, fugas, valor total, % inconsistencia
-- **Recomendación**: APROBAR (<30% inconsistencias), REVISAR (>0%), RECHAZAR (>30%)
+- **Recomendación** (jerarquía clínica):
+  - **RECHAZAR** si hay items `SIN_SOPORTE_CLINICO` (sin justificación clínica)
+  - **REVISAR** si hay discrepancias de datos (`CODIGO_NO_COINCIDE`, `CANTIDAD_DISCORDANTE`)
+  - **APROBAR** si todo es consistente
 - **Detalle por cruce**: alertas, severidad, soporte clínico
-- **Modelos**: predicciones CNN y/o análisis Nemotron
+- **Modelos**: predicciones CNN, XGBoost y/o análisis Nemotron
 
 ---
 
@@ -222,7 +226,8 @@ Abrir `frontend/index.html` en el navegador.
 | GET | `/api/atenciones?pac_id=` | Listar atenciones |
 | GET | `/api/cruces-atencion/{id}` | Cruces de una atención |
 | GET | `/api/auditar/{id_cruce}` | Auditoría detallada de un cruce |
-| POST | `/api/prefactura/analizar` | **Principal** — subir CSV/PDF y analizar |
+| POST | `/api/prefactura/analizar` | **Principal** — subir CSV/PDF y analizar una prefactura |
+| POST | `/api/prefactura/analizar-lote` | **Importación masiva** — analizar múltiples prefacturas en lote |
 
 Documentación interactiva en `http://localhost:8000/docs`
 
@@ -237,6 +242,7 @@ LINE/
 ├── build_db.py                       Construye SQLite desde CSV maestro
 ├── requirements.txt
 ├── start.bat / start.py              Scripts de inicio
+├── .env.example                      Ejemplo de variables de entorno
 ├── linea.db                          Base SQLite (3126 cruces, 294 pacientes)
 ├── data/
 │   ├── dataset_maestro.csv           Datos etiquetados HC vs PF
@@ -249,9 +255,15 @@ LINE/
 │   ├── artefactos_xgboost.pkl          Artefactos XGBoost (scaler, encoders, threshold)
 │   ├── auditor_medico_cnn.keras        CNN MobileNetV2 entrenado (referencia)
 │   └── artefactos_preprocesamiento.pkl Parámetros del pipeline CNN
+├── backend/
+│   ├── adres_scraper.py              Web scraping BDUA ADRES
+│   └── xgboost_inferencia.py         Inferencia XGBoost
 ├── frontend/
 │   ├── index.html                    Interfaz de usuario
 │   └── app.js                        Lógica del frontend
+├── tests/
+│   ├── test_r1_preprocesamiento.py   Tests de preprocesamiento
+│   └── e2e_basico.py                 Test end-to-end básico
 ├── docs/
 │   ├── README.md                     Documentación técnica
 │   ├── MIGRATION.md                  Guía de migración a producción

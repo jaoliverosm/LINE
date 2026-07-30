@@ -351,7 +351,7 @@
     <div class="flow-node">
       <div class="icon">🔍</div>
       <div class="label">Verificación BDUA</div>
-      <div class="desc">Consulta ADRES vía Apitude — ¿afiliado activo?</div>
+      <div class="desc">Web scraping ADRES (BDUA) — ¿afiliado activo?</div>
     </div>
     <div class="flow-arrow">→</div>
     <div class="flow-node">
@@ -385,11 +385,12 @@
           <li>SIN_SOPORTE_CLINICO</li>
           <li>CODIGO_NO_COINCIDE</li>
           <li>CANTIDAD_DISCORDANTE</li>
+          <li>DIAGNOSTICO_NO_RELACIONADO</li>
           <li>NO_FACTURADO (fuga)</li>
           <li>SIN_AUTORIZACION_EPS</li>
-          <li>SOPORTE_MEDICO_INSUFICIENTE</li>
-          <li>SERVICIO_ALTO_COSTO</li>
-          <li>TEMPORAL_DISCORDANTE</li>
+          <li>SIN_SOPORTE_MEDICO_DIARIO</li>
+          <li>SERVICIO_ALTO_COSTO_SIN_VALIDACION</li>
+          <li>FACTURACION_TARDIA</li>
         </ul>
       </div>
       <div class="branch-item" style="border-color:#006e25;">
@@ -435,20 +436,20 @@
 
 <div class="flow">
   <div class="flow-row">
-    <div class="flow-node success">
-      <div class="icon">✅</div>
-      <div class="label">APROBAR</div>
-      <div class="desc">&lt;30% inconsistencias</div>
+    <div class="flow-node danger">
+      <div class="icon">❌</div>
+      <div class="label">RECHAZAR</div>
+      <div class="desc">Items SIN_SOPORTE_CLINICO (sin justificación clínica)</div>
     </div>
     <div class="flow-node warning">
       <div class="icon">🔶</div>
       <div class="label">REVISAR</div>
-      <div class="desc">&gt;0% inconsistencias</div>
+      <div class="desc">Discrepancias en CUPS o cantidades</div>
     </div>
-    <div class="flow-node danger">
-      <div class="icon">❌</div>
-      <div class="label">RECHAZAR</div>
-      <div class="desc">&gt;30% inconsistencias</div>
+    <div class="flow-node success">
+      <div class="icon">✅</div>
+      <div class="label">APROBAR</div>
+      <div class="desc">Todo consistente</div>
     </div>
   </div>
 </div>
@@ -535,7 +536,7 @@
   <div class="pipeline-step">
     <div class="num">7</div>
     <strong>Threshold</strong>
-    <span>0.5 → CONSISTENTE / INCONSISTENTE</span>
+    <span>0.4273 (óptimo) → CONSISTENTE / INCONSISTENTE</span>
   </div>
 </div>
 
@@ -578,6 +579,36 @@
       <td><span class="tag tag-red">ALTA</span></td>
       <td>Procedimiento realizado (HC) que no aparece en la prefactura — fuga de ingreso</td>
       <td>Regla</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-orange">DIAGNOSTICO_NO_RELACIONADO</span></td>
+      <td><span class="tag tag-orange">MEDIA</span></td>
+      <td>El diagnóstico registrado no se relaciona con el procedimiento facturado</td>
+      <td>Regla</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-red">SIN_AUTORIZACION_EPS</span></td>
+      <td><span class="tag tag-red">ALTA</span></td>
+      <td>Servicio facturado sin evidencia de autorización de la EPS</td>
+      <td>Regla / Nemotron</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-orange">SIN_SOPORTE_MEDICO_DIARIO</span></td>
+      <td><span class="tag tag-orange">MEDIA</span></td>
+      <td>Falta soporte médico documentado para cada día de atención</td>
+      <td>Regla / Nemotron</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-red">SERVICIO_ALTO_COSTO_SIN_VALIDACION</span></td>
+      <td><span class="tag tag-red">ALTA</span></td>
+      <td>Servicio de alto costo sin validación especial requerida</td>
+      <td>Regla / Nemotron</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-orange">FACTURACION_TARDIA</span></td>
+      <td><span class="tag tag-orange">MEDIA</span></td>
+      <td>Incoherencia temporal entre la atención y la fecha de facturación</td>
+      <td>Regla / Nemotron</td>
     </tr>
     <tr>
       <td><span class="tag tag-green">CONSISTENTE</span></td>
@@ -625,7 +656,8 @@
     <tr><td><span class="tag tag-purple">IA Local (Tabular)</span></td><td><strong>XGBoost + SHAP</strong></td><td>Gradient boosting tabular con explicabilidad</td></tr>
     <tr><td><span class="tag tag-purple">IA Externa</span></td><td><strong>NVIDIA Nemotron-3-nano</strong></td><td>LLM con razonamiento clínico vía API</td></tr>
     <tr><td><span class="tag tag-blue">Preprocesamiento</span></td><td><strong>pandas, numpy, scikit-learn</strong></td><td>Imputación, escalado, OHE, t-SNE, normalización</td></tr>
-    <tr><td><span class="tag tag-blue">BDUA</span></td><td><strong>Apitude API</strong></td><td>Verificación de afiliación en ADRES (Base Única de Afiliados)</td></tr>
+    <tr><td><span class="tag tag-blue">BDUA</span></td>    <td><strong>Web Scraping (adres_scraper.py)</strong></td>
+    <td>Verificación de afiliación en ADRES (BDUA) vía consulta ciudadana</td></tr>
     <tr><td><span class="tag tag-blue">PDF</span></td><td><strong>pypdf</strong></td><td>Extracción de texto de facturas PDF (modo Nemotron)</td></tr>
   </tbody>
 </table>
@@ -664,6 +696,7 @@ LINE/
 ├── build_db.py                       Construye linea.db desde CSV maestro
 ├── requirements.txt                  Dependencias Python
 ├── start.bat / start.sh              Scripts de inicio automático
+├── .env.example                      Ejemplo de variables de entorno
 ├── linea.db                          SQLite (3,126 cruces · 294 pacientes · 1,200 atenciones)
 ├── data/
 │   ├── dataset_maestro.csv           Dataset etiquetado HC vs PF
@@ -672,11 +705,19 @@ LINE/
 │   ├── db_meta.json                  Metadatos de la BD
 │   └── datos_prueba/                 Archivos de prueba adicionales
 ├── models/
-│   ├── auditor_medico_cnn.keras      CNN MobileNetV2 entrenado
+│   ├── modelo_xgboost.pkl            XGBoost entrenado (modelo en producción)
+│   ├── artefactos_xgboost.pkl        Artefactos XGBoost (scaler, encoders, threshold)
+│   ├── auditor_medico_cnn.keras      CNN MobileNetV2 entrenado (referencia)
 │   └── artefactos_preprocesamiento.pkl  Pipeline (scaler, t-SNE, threshold, top_categories)
+├── backend/
+│   ├── adres_scraper.py              Web scraping BDUA ADRES
+│   └── xgboost_inferencia.py         Inferencia XGBoost
 ├── frontend/
 │   ├── index.html                    Interfaz de usuario (Tailwind)
 │   └── app.js                        Lógica del frontend
+├── tests/
+│   ├── test_r1_preprocesamiento.py   Tests de preprocesamiento
+│   └── e2e_basico.py                 Test end-to-end básico
 ├── docs/
 │   ├── README.md                     Documentación técnica
 │   ├── MIGRATION.md                  Guía de migración a producción
