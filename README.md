@@ -264,7 +264,7 @@ La verificación BDUA no requiere API key: se realiza por web scraping de la con
 
 ## Relación con el Módulo Capstone
 
-Este repositorio (**LINE**) es la **aplicación funcional** del proyecto; el análisis de datos, el entrenamiento de los modelos y las figuras de resultados viven en el repositorio hermano **Capstone** ([../Capstone/README.md](../Capstone/README.md)).
+Este repositorio (**LINE**) es la **aplicación funcional** del proyecto; el análisis de datos, el entrenamiento de los modelos y las figuras de resultados viven en el repositorio hermano **Capstone** ([github.com/jaoliverosm/Capstone-](https://github.com/jaoliverosm/Capstone-)).
 
 | Módulo | Rol | Contenido clave |
 |--------|-----|-----------------|
