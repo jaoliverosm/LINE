@@ -5,6 +5,23 @@ Capstone SIC 2025 — Valida que los servicios facturados tengan soporte clínic
 
 ---
 
+## 📑 Índice
+
+- [Stack Tecnológico](#stack-tecnológico)
+- [Arquitectura del Sistema](#arquitectura-del-sistema)
+- [Diagrama Visual del Flujo](#-diagrama-visual-del-flujo)
+- [Flujo de Trabajo](#flujo-de-trabajo)
+- [Instalación y Ejecución](#instalación-y-ejecución)
+- [API Endpoints](#api-endpoints)
+- [Estructura del Proyecto](#estructura-del-proyecto)
+- [Variables de Entorno](#variables-de-entorno)
+- [Documentación Adicional](#documentación-adicional)
+- [Notas para el Equipo](#notas-para-el-equipo)
+- [Cumplimiento Normativo](#cumplimiento-normativo)
+- [Relación con el Módulo Capstone](#relación-con-el-módulo-capstone)
+
+---
+
 ## Stack Tecnológico
 
 | Componente | Tecnología |
@@ -228,8 +245,6 @@ La verificación BDUA no requiere API key: se realiza por web scraping de la con
 
 ---
 
----
-
 ## Cumplimiento Normativo
 
 | Normativa | Estado | Documento |
@@ -242,6 +257,19 @@ La verificación BDUA no requiere API key: se realiza por web scraping de la con
 > los controles descritos en [docs/ANALISIS_RIESGOS.md](docs/ANALISIS_RIESGOS.md) y cumplir con la
 > [Ley 1581 de 2012](https://www.funcionpublica.gov.co/eva/gestornormativo/norma.php?i=37481)
 > e [ISO/IEC 27001:2022](https://www.iso.org/standard/27001).
+
+---
+
+---
+
+## Relación con el Módulo Capstone
+
+Este repositorio (**LINE**) es la **aplicación funcional** del proyecto; el análisis de datos, el entrenamiento de los modelos y las figuras de resultados viven en el repositorio hermano **Capstone** ([../Capstone/README.md](../Capstone/README.md)).
+
+| Módulo | Rol | Contenido clave |
+|--------|-----|-----------------|
+| **LINE** (este repo) | Aplicación: FastAPI + frontend + inferencia | `server.py`, `frontend/`, `models/` |
+| **Capstone** (repo hermano) | Ciencia de datos: notebooks 01–08, métricas oficiales | `Capstone/outputs/reports/metrics.json`, `Capstone/documentacion/metricas_oficiales.md` |
 
 ---
 
