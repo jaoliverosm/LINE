@@ -32,6 +32,11 @@ Thumbs.db
 # Test results
 test_results.json
 
+# Test artifacts locales
+_test_endpoint.py
+pf_test_result.json
+resultados_lote_*.csv
+
 # Database (optional - uncomment if you want to exclude .db files)
 # linea.db
 
