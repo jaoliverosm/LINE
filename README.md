@@ -18,6 +18,7 @@ Capstone SIC 2025 — Valida que los servicios facturados tengan soporte clínic
 - [Documentación Adicional](#documentación-adicional)
 - [Notas para el Equipo](#notas-para-el-equipo)
 - [Cumplimiento Normativo](#cumplimiento-normativo)
+- [Licencia](#licencia)
 - [Relación con el Módulo Capstone](#relación-con-el-módulo-capstone)
 
 ---
@@ -259,6 +260,12 @@ La verificación BDUA no requiere API key: se realiza por web scraping de la con
 > e [ISO/IEC 27001:2022](https://www.iso.org/standard/27001).
 
 ---
+
+## Licencia
+
+Este proyecto está bajo la **Licencia MIT** — ver el archivo [LICENSE](LICENSE) para más detalles.
+
+> El copyright pertenece al **Equipo LINE — Auditor Médico Digital** (Capstone Samsung Innovation Campus 2025).
 
 ---
 
