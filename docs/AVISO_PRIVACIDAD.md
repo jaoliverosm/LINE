@@ -1,6 +1,7 @@
 # Aviso de Privacidad — LINE | Health & Life IPS SAS
 
 **Última actualización:** 30 de julio de 2026  
+**Elaborado por:** Jefersson Aldair Oliveros Monroy (líder del proyecto)  
 **Fundamento legal:** Ley 1581 de 2012, Decreto 1377 de 2013, Decreto 1074 de 2015
 
 ---

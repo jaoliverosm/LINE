@@ -4,7 +4,7 @@
 **Fecha:** 30 de julio de 2026  
 **Versión:** 1.1  
 **Estado:** En implementación — Fase 1 en progreso  
-**Responsable:** Equipo LINE
+**Autor:** Jefersson Aldair Oliveros Monroy
 
 ---
 
@@ -179,8 +179,8 @@ LINE/
 
 | Versión | Fecha | Autor | Cambios |
 |---------|-------|-------|---------|
-| 1.0 | 30-jul-2026 | Equipo LINE | Creación inicial |
-| 1.1 | 30-jul-2026 | Equipo LINE | Actualización con controles implementados (docs, CORS, headers, logging, frontend) |
+| 1.0 | 30-jul-2026 | Jefersson Aldair Oliveros Monroy | Creación inicial |
+| 1.1 | 30-jul-2026 | Jefersson Aldair Oliveros Monroy | Actualización con controles implementados (docs, CORS, headers, logging, frontend) |
 
 ---
 

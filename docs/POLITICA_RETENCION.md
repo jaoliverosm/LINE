@@ -60,7 +60,7 @@ Los siguientes datos **no están sujetos a supresión**:
 
 | Versión | Fecha | Cambio | Autor |
 |---------|-------|--------|-------|
-| 1.0 | 30-jul-2026 | Creación inicial | Equipo LINE |
+| 1.0 | 30-jul-2026 | Creación inicial | Jefersson Aldair Oliveros Monroy |
 
 ---
 

@@ -5,6 +5,8 @@
 |---------|-------|--------|
 | 1.0 | 30-jul-2026 | Aprobada |
 
+**Elaborado por:** Jefersson Aldair Oliveros Monroy (líder del proyecto)  
+
 ---
 
 ### 1. Propósito

@@ -1,6 +1,7 @@
 # Análisis de Riesgos — LINE | Auditor Médico Digital
 
 **Versión:** 1.0 · **Fecha:** 30-jul-2026  
+**Autor:** Jefersson Aldair Oliveros Monroy  
 **Metodología:** ISO 27005 simplificado (cualitativo)  
 **Clasificación:** Alto (3), Medio (2), Bajo (1)
 
