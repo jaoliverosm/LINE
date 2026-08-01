@@ -1300,17 +1300,41 @@ function mostrarResultadoPF(data) {
   });
 }
 
-function exportarResultadoPF() {
+async function exportarResultadoPF() {
   if (!ultimoResultadoPF) return showToast("No hay resultados para exportar.", "error");
-  const data = JSON.stringify(ultimoResultadoPF, null, 2);
-  const blob = new Blob([data], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `prefactura_analisis_${new Date().toISOString().slice(0,10)}.json`;
-  a.click();
-  URL.revokeObjectURL(url);
-  showToast("Resultado exportado correctamente", "success");
+  
+  showToast("Generando PDF...", "info", 2000);
+  
+  try {
+    const resp = await fetch(`${API}/prefactura/exportar-pdf`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        resultado: ultimoResultadoPF,
+        formData: ultimoFormData || {}
+      })
+    });
+    
+    if (!resp.ok) {
+      const errText = await resp.text();
+      throw new Error(`Servidor respondio ${resp.status}: ${errText}`);
+    }
+    
+    const blob = await resp.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `LINE_auditoria_${ultimoFormData?.numDoc || 'resultado'}_${new Date().toISOString().slice(0,10)}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    showToast("PDF exportado correctamente", "success");
+  } catch(err) {
+    console.error("Error exportando PDF:", err);
+    showToast("Error al exportar PDF: " + err.message, "error");
+  }
 }
 
 // ── Pantalla 2: Seleccion atencion ────────────────────────────────

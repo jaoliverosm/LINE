@@ -12,11 +12,13 @@ Ejecutar: uvicorn server:app --host 0.0.0.0 --port 8000
 """
 from __future__ import annotations
 import sys, json, sqlite3, time, warnings, io, os as _os, logging
+from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
 import numpy as np, pandas as pd, requests
 from fastapi import FastAPI, HTTPException, Query, File, UploadFile, Form
+from fastapi.responses import Response
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
@@ -1912,6 +1914,42 @@ def _calcular_reglas(row) -> dict:
         "severidad": alertas[0]["severidad"] if alertas else "NINGUNA",
         "n_alertas": len(alertas),
     }
+
+
+# ── Endpoint: Exportar PDF ──────────────────────────────────────────
+
+@app.post("/api/prefactura/exportar-pdf")
+async def exportar_pdf(data: dict):
+    """
+    Recibe el resultado de analizar_prefactura y devuelve un PDF formal.
+    El frontend envia el JSON completo del resultado + formData.
+    """
+    try:
+        from generar_reporte_prefactura import convertir_resultado_a_data, construir_pdf_bytes
+    except ImportError:
+        raise HTTPException(500, "Modulo generar_reporte_prefactura no encontrado. Instale reportlab: pip install reportlab")
+
+    resultado = data.get("resultado")
+    formData = data.get("formData", {})
+
+    if not resultado:
+        raise HTTPException(400, "Falta el campo 'resultado' en el payload")
+
+    try:
+        pdf_data = convertir_resultado_a_data(resultado, formData)
+        pdf_bytes = construir_pdf_bytes(pdf_data)
+    except Exception as e:
+        logger.error(f"Error generando PDF: {e}")
+        raise HTTPException(500, f"Error al generar el PDF: {e}")
+
+    fecha = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"LINE_auditoria_{formData.get('numDoc', 'sin_doc')}_{fecha}.pdf"
+
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
 
 
 # ── Endpoint: Analizar Lote de Prefacturas (Importación Masiva) ──
