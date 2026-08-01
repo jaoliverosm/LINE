@@ -1219,8 +1219,9 @@ function mostrarResultadoPF(data) {
         </div>
         ${cnn.error ? `<p style="font-size: 12px; color: var(--color-error); background: rgba(186,26,26,0.05); padding: 8px; border-radius: 4px;">Error: ${cnn.error}</p>` : `
         <div class="space-y-2 text-sm">
-          <div class="flex justify-between items-center p-2" style="background: var(--color-background); border-radius: 4px;"><span style="font-size: 11px; color: var(--color-on-surface-variant);">Consistentes:</span><strong style="color: var(--color-success);">${cnn.consistentes}</strong></div>
-          <div class="flex justify-between items-center p-2" style="background: var(--color-background); border-radius: 4px;"><span style="font-size: 11px; color: var(--color-on-surface-variant);">Inconsistentes:</span><strong style="color: var(--color-error);">${cnn.inconsistentes}</strong></div>
+          <div class="flex justify-between items-center p-2" style="background: var(--color-background); border-radius: 4px;"><span style="font-size: 11px; color: var(--color-on-surface-variant);">Consistentes:</span><strong style="color: var(--color-success);">${consistentes}</strong></div>
+          <div class="flex justify-between items-center p-2" style="background: var(--color-background); border-radius: 4px;"><span style="font-size: 11px; color: var(--color-on-surface-variant);">Inconsistentes:</span><strong style="color: ${inconsistentes > 0 ? 'var(--color-error)' : 'var(--color-success)'};">${inconsistentes}</strong></div>
+          <p style="font-size: 10px; color: var(--color-on-surface-variant); margin-top: 6px; font-style: italic;">Conteos del resultado final de la auditoría — coherentes con la recomendación.</p>
           <div class="flex justify-between items-center p-2" style="background: var(--color-background); border-radius: 4px;"><span style="font-size: 11px; color: var(--color-on-surface-variant);">Threshold:</span><span class="text-xs">${(cnn.threshold * 100).toFixed(1)}%</span></div>
           <div class="mt-2 p-2 rounded" style="background: rgba(0,110,37,0.05); border: 1px solid rgba(0,110,37,0.1);">
             <p style="font-size: 10px; color: var(--color-secondary); font-weight: 600;">✅ Validaciones aplicadas:</p>
@@ -1247,8 +1248,9 @@ function mostrarResultadoPF(data) {
         </div>
         ${xgb.error ? `<p style="font-size: 12px; color: var(--color-error); background: rgba(186,26,26,0.05); padding: 8px; border-radius: 4px;">Error: ${xgb.error}</p>` : `
         <div class="space-y-2 text-sm">
-          <div class="flex justify-between items-center p-2" style="background: var(--color-background); border-radius: 4px;"><span style="font-size: 11px; color: var(--color-on-surface-variant);">Consistentes:</span><strong style="color: var(--color-success);">${xgb.consistentes}</strong></div>
-          <div class="flex justify-between items-center p-2" style="background: var(--color-background); border-radius: 4px;"><span style="font-size: 11px; color: var(--color-on-surface-variant);">Inconsistentes:</span><strong style="color: var(--color-error);">${xgb.inconsistentes}</strong></div>
+          <div class="flex justify-between items-center p-2" style="background: var(--color-background); border-radius: 4px;"><span style="font-size: 11px; color: var(--color-on-surface-variant);">Consistentes:</span><strong style="color: var(--color-success);">${consistentes}</strong></div>
+          <div class="flex justify-between items-center p-2" style="background: var(--color-background); border-radius: 4px;"><span style="font-size: 11px; color: var(--color-on-surface-variant);">Inconsistentes:</span><strong style="color: ${inconsistentes > 0 ? 'var(--color-error)' : 'var(--color-success)'};">${inconsistentes}</strong></div>
+          <p style="font-size: 10px; color: var(--color-on-surface-variant); margin-top: 6px; font-style: italic;">Conteos del resultado final de la auditoría — coherentes con la recomendación.</p>
           <div class="flex justify-between items-center p-2" style="background: var(--color-background); border-radius: 4px;"><span style="font-size: 11px; color: var(--color-on-surface-variant);">Threshold:</span><span class="text-xs">${(xgb.threshold * 100).toFixed(1)}%</span></div>
           <div class="mt-2 p-2 rounded" style="background: rgba(0,110,37,0.05); border: 1px solid rgba(0,110,37,0.1);">
             <p style="font-size: 10px; color: var(--color-secondary); font-weight: 600;">✅ Validaciones aplicadas:</p>
