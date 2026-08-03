@@ -1,5 +1,7 @@
 # LINE — Auditor Médico Digital
 
+![Demo LINE](https://raw.githubusercontent.com/jaoliverosm/Capstone-/main/documentacion/line_demo.gif)
+
 **Sistema de auditoría de prefacturas** para **Health & Life IPS SAS**.  
 Capstone SIC 2025 — Valida que los servicios facturados tengan soporte clínico real en la Historia Clínica.
 
@@ -61,6 +63,17 @@ Capstone SIC 2025 — Valida que los servicios facturados tengan soporte clínic
 ---
 
 ## 📊 Diagrama Visual del Flujo
+
+```mermaid
+flowchart TD
+    A["📄 Prefactura<br/>CSV o PDF"] --> B["🔍 Validación<br/>ADRES + BD local + HC"]
+    B --> C1["🧠 CNN local<br/>Imagen 32×32"]
+    B --> C2["⚡ XGBoost local<br/>Features tabulares"]
+    B --> C3["🤖 Nemotron externo<br/>Vision LLM (PDF)"]
+    C1 --> D["✅ Resultado consolidado<br/>Recomendación + hallazgos"]
+    C2 --> D
+    C3 --> D
+```
 
 Para ver el diagrama visual completo del flujo de trabajo del sistema, abre el archivo **[docs/workflow.html](docs/workflow.html)** en tu navegador.
 
