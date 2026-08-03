@@ -1586,7 +1586,7 @@ function mostrarSoporte(section) {
         <p>En <strong>Health & Life IPS</strong> protegemos los datos personales de nuestros pacientes conforme a la <strong>Ley 1581 de 2012</strong> (Protección de Datos Personales), el <strong>Decreto 1377 de 2013</strong> y los lineamientos de <strong>ISO/IEC 27001:2022</strong> (Seguridad de la Información).</p>
         <p><strong>Datos recopilados:</strong> Identificación, datos de salud con fines de auditoría médica, historias clínicas y facturación.</p>
         <p><strong>Finalidad:</strong> Verificación de prefacturas, control de calidad, auditoría médica y cumplimiento normativo.</p>
-        <p><strong>Derechos ARCO:</strong> Acceder, Rectificar, Cancelar y Oponerse al tratamiento de sus datos. Escríbanos a <strong>protecciondatos@hlsite.com.co</strong> para ejercer sus derechos (respuesta en 15 días hábiles).</p>
+        <p><strong>Derechos ARCO:</strong> Acceder, Rectificar, Cancelar y Oponerse al tratamiento de sus datos. Escríbanos al canal oficial SIAU de la IPS — <strong>siau@hlips.com.co</strong> — para ejercer sus derechos (respuesta en 15 días hábiles).</p>
         <div style="margin-top: 16px; padding: 14px; background: var(--color-surface-container); border-radius: 10px; border: 1px solid var(--color-outline-variant);">
           <p style="font-size: 12px; font-weight: 600; margin-bottom: 8px; color: var(--color-primary);">📄 Documentos de cumplimiento normativo</p>
           <ul style="font-size: 11px; color: var(--color-on-surface-variant); line-height: 1.8;">
@@ -1624,11 +1624,11 @@ function mostrarSoporte(section) {
       <div class="space-y-4 text-sm">
         <div style="background: var(--color-surface-container); border-radius: 12px; padding: 16px;">
           <p class="font-semibold flex items-center gap-2" style="color: var(--color-on-surface);"><span class="material-symbols-outlined" style="color: var(--color-primary);">mail</span> Correo</p>
-          <p class="mt-1" style="color: var(--color-on-surface-variant);">soporte@hlsite.com.co</p>
+          <p class="mt-1" style="color: var(--color-on-surface-variant);">siau@hlips.com.co · PBX 300 912 1102</p>
         </div>
         <div style="background: var(--color-surface-container); border-radius: 12px; padding: 16px;">
           <p class="font-semibold flex items-center gap-2" style="color: var(--color-on-surface);"><span class="material-symbols-outlined" style="color: var(--color-primary);">call</span> Teléfono</p>
-          <p class="mt-1" style="color: var(--color-on-surface-variant);">+57 (1) 234 5678</p>
+          <p class="mt-1" style="color: var(--color-on-surface-variant);">PBX 300 912 1102 · WhatsApp 322 858 9704</p>
         </div>
         <div style="background: var(--color-surface-container); border-radius: 12px; padding: 16px;">
           <p class="font-semibold flex items-center gap-2" style="color: var(--color-on-surface);"><span class="material-symbols-outlined" style="color: var(--color-primary);">schedule</span> Horarios</p>

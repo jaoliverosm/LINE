@@ -388,7 +388,7 @@ Si hay problemas con la migración, para volver a SQLite:
 Para problemas durante la migración, consulte:
 - Documentación principal: `docs/README.md`
 - Issues en el repositorio del proyecto
-- Contacto de soporte: soporte@hlsite.com.co
+- Contacto de soporte: canal oficial SIAU de la IPS — siau@hlips.com.co · PBX 300 912 1102
 
 ---
 

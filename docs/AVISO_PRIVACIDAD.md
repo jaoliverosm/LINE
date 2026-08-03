@@ -1,8 +1,9 @@
-# Aviso de Privacidad — LINE | Health & Life IPS SAS
+# Aviso de Privacidad — LINE | Health & Life IPS S.A.S. (HeLi Salud)
 
-**Última actualización:** 30 de julio de 2026  
+**Última actualización:** 2 de agosto de 2026  
 **Elaborado por:** Jefersson Aldair Oliveros Monroy (líder del proyecto)  
-**Fundamento legal:** Ley 1581 de 2012, Decreto 1377 de 2013, Decreto 1074 de 2015
+**Fundamento legal:** Ley 1581 de 2012, Decreto 1377 de 2013, Decreto 1074 de 2015  
+**Datos de contacto verificados en:** sitio oficial de la IPS — [heli.com.co/contactenos](https://heli.com.co/contactenos/) (consultado el 2 de agosto de 2026)
 
 ---
 
@@ -10,11 +11,16 @@
 
 | Información | Dato |
 |-------------|------|
-| **Razón Social** | Health & Life IPS SAS |
+| **Razón Social** | Health & Life IPS S.A.S. (HeLi Salud) |
+| **NIT** | 900.900.122-7 |
 | **Producto** | LINE — Auditor Médico Digital |
-| **Correo DPO** | protecciondatos@hlsite.com.co |
-| **Teléfono** | +57 (1) 234 5678 |
-| **Dirección** | Bogotá D.C., Colombia |
+| **Correo oficial (SIAU)** | siau@hlips.com.co |
+| **PBX** | 300 912 1102 |
+| **WhatsApp** | 322 858 9704 |
+| **Notificaciones jurídicas** | direccion.juridica@heli.com.co |
+| **Dirección principal (sede Toberín)** | Carrera 22 # 166-90, Bogotá D.C., Colombia |
+| **Sitio web** | [www.healthlifeips.com](https://www.healthlifeips.com) · [heli.com.co](https://heli.com.co) |
+| **Vigilado por** | Superintendencia Nacional de Salud (Supersalud) |
 
 ## 2. Datos Personales Recopilados
 
@@ -35,14 +41,14 @@
 
 ## 4. Derechos del Titular (ARCO)
 
-El titular puede ejercer sus derechos de **Acceder, Rectificar, Cancelar y Oponerse** al tratamiento de sus datos:
+El titular puede ejercer sus derechos de **Acceder, Rectificar, Cancelar y Oponerse** al tratamiento de sus datos, a través del canal oficial de atención al usuario (SIAU) de la IPS:
 
 | Derecho | Descripción | Canal |
 |---------|-------------|-------|
-| **Acceder** | Conocer qué datos tenemos y cómo se usan | protecciondatos@hlsite.com.co |
-| **Rectificar** | Actualizar datos incorrectos o desactualizados | protecciondatos@hlsite.com.co |
-| **Cancelar** | Solicitar la eliminación de datos no necesarios | protecciondatos@hlsite.com.co |
-| **Oponerse** | Limitar el tratamiento para fines específicos | protecciondatos@hlsite.com.co |
+| **Acceder** | Conocer qué datos tenemos y cómo se usan | siau@hlips.com.co · PBX 300 912 1102 |
+| **Rectificar** | Actualizar datos incorrectos o desactualizados | siau@hlips.com.co · PBX 300 912 1102 |
+| **Cancelar** | Solicitar la eliminación de datos no necesarios | siau@hlips.com.co · PBX 300 912 1102 |
+| **Oponerse** | Limitar el tratamiento para fines específicos | siau@hlips.com.co · PBX 300 912 1102 |
 
 **Plazo de respuesta:** 15 días hábiles (Art. 15 Ley 1581)
 
@@ -52,7 +58,7 @@ El titular puede ejercer sus derechos de **Acceder, Rectificar, Cancelar y Opone
 |-------------|-----------|------|
 | **ADRES (BDUA)** | Consulta de afiliación | Colombia |
 | **NVIDIA (Nemotron)** | Análisis LLM de prefacturas (datos anonimizados) | Estados Unidos |
-| **Entes de control (SIC)** | Requerimientos legales | Colombia |
+| **Entes de control (SIC, Supersalud)** | Requerimientos legales | Colombia |
 
 ## 6. Seguridad de la Información
 
@@ -73,11 +79,15 @@ Implementamos controles basados en ISO/IEC 27001:2022:
 
 ## 8. Contacto
 
-Para ejercer sus derechos ARCO o cualquier consulta sobre protección de datos:
-- **Correo:** protecciondatos@hlsite.com.co
-- **Teléfono:** +57 (1) 234 5678
-- **Dirección:** Bogotá D.C., Colombia
+Para ejercer sus derechos ARCO o cualquier consulta sobre protección de datos, puede comunicarse por los canales oficiales de la IPS (fuente: [heli.com.co/contactenos](https://heli.com.co/contactenos/)):
+
+- **Correo (SIAU):** siau@hlips.com.co
+- **PBX:** 300 912 1102
+- **WhatsApp:** 322 858 9704
+- **Notificaciones jurídicas:** direccion.juridica@heli.com.co
+- **Dirección (sede Toberín):** Carrera 22 # 166-90, Bogotá D.C., Colombia
+- **Sitio web:** [www.healthlifeips.com](https://www.healthlifeips.com) · [heli.com.co](https://heli.com.co)
 
 ---
 
-*Documento controlado v1.0 — Health & Life IPS SAS*
+*Documento controlado v1.1 — Health & Life IPS S.A.S. — Datos de contacto verificados en el sitio oficial de la IPS (heli.com.co), agosto de 2026.*

@@ -35,7 +35,7 @@ Definir los plazos de retención y los mecanismos de supresión segura de los da
 
 El titular puede solicitar:
 
-1. **Acceso:** Enviar correo a protecciondatos@hlsite.com.co con el asunto "ARCO - Acceso". Se responderá en 15 días hábiles con los datos tratados.
+1. **Acceso:** Enviar correo al canal oficial de atención al usuario (SIAU) de la IPS — siau@hlips.com.co — con el asunto "ARCO - Acceso". Se responderá en 15 días hábiles con los datos tratados.
 2. **Rectificación:** Si los datos son incorrectos, se actualizarán en la base de datos local y en próximas consultas a ADRES.
 3. **Cancelación (Supresión):** Se eliminarán los datos personales del paciente de la BD local, conservando solo registros anonimizados para auditoría.
 4. **Oposición:** Se limitará el tratamiento a fines exclusivamente legales o contractuales.
