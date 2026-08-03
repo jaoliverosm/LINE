@@ -41,7 +41,7 @@
 | R4 | A1, A2 (Datos) | Acceso no autorizado a datos de salud | 2 | 3 | ** 6** |
 | R5 | A6 (Scraper) | Bloqueo del scraper ADRES por cambios en BDUA | 3 | 2 |  5 |
 | R6 | A4 (Modelos) | Envenenamiento del modelo (adversarial) | 1 | 3 |  4 |
-| R7 | A3 (API) | Ataque DoS al endpoint de análisis | 2 | 2 | 🟠 4 |
+| R7 | A3 (API) | Ataque DoS al endpoint de análisis | 2 | 2 |  4 |
 | R8 | A1 (BD) | Inyección SQL en consultas | 2 | 2 |  4 |
 | R9 | A7 (Frontend) | XSS o manipulación del DOM | 2 | 1 |  3 |
 | R10 | A10 (Código) | Exposición de secretos en Git | 2 | 2 |  4 |
